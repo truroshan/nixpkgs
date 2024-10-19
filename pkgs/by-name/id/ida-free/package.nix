@@ -36,7 +36,7 @@ stdenv.mkDerivation rec {
 
   icon = fetchurl {
     urls = [
-      "https://web.archive.org/web/20221105181231if_/https://hex-rays.com/products/ida/news/8_1/images/icon_free.png"
+      "https://i.ibb.co/Qd0SSYY/image.png"
     ];
     hash = "sha256-StjJDl3DIset+6bt1bAS9Pf2jMOkE0WFr0dKOJ0C5vE=";
   };
