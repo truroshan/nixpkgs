@@ -38,7 +38,7 @@ stdenv.mkDerivation rec {
     urls = [
       "https://i.ibb.co/Qd0SSYY/image.png"
     ];
-    hash = "sha256-StjJDl3DIset+6bt1bAS9Pf2jMOkE0WFr0dKOJ0C5vE=";
+    hash = "sha256-Y5kP8/0w/E26OTg+/3vrZd+4FjKm8YdF7EORCFDN9SE=";
   };
 
   desktopItem = makeDesktopItem {
