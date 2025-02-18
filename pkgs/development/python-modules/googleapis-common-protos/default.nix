@@ -2,24 +2,28 @@
   lib,
   buildPythonPackage,
   fetchPypi,
-  setuptools,
   grpc,
   protobuf,
+  pythonOlder,
+  setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "googleapis-common-protos";
-  version = "1.63.0";
+  version = "1.66.0";
   pyproject = true;
 
+  disabled = pythonOlder "3.7";
+
   src = fetchPypi {
-    inherit pname version;
-    hash = "sha256-F60BsR1fHQFxwG07pcBMVEdOiDtmuUlyK0k47iaU704=";
+    pname = "googleapis_common_protos";
+    inherit version;
+    hash = "sha256-w+ezPRX9ylN0zApzRt2S/6hHQlzE6pQdlw8TaABS7Iw=";
   };
 
-  nativeBuildInputs = [ setuptools ];
+  build-system = [ setuptools ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     grpc
     protobuf
   ];
@@ -38,7 +42,8 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "Common protobufs used in Google APIs";
     homepage = "https://github.com/googleapis/python-api-common-protos";
+    changelog = "https://github.com/googleapis/python-api-common-protos/releases/tag/v${version}";
     license = licenses.asl20;
-    maintainers = with maintainers; [ ];
+    maintainers = [ ];
   };
 }

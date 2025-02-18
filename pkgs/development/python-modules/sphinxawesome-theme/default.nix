@@ -5,21 +5,20 @@
   poetry-core,
   sphinx,
   beautifulsoup4,
-  pythonRelaxDepsHook
 }:
 
 buildPythonPackage rec {
   pname = "sphinxawesome-theme";
-  version = "5.2.0";
+  version = "5.3.2";
   pyproject = true;
 
   src = fetchPypi {
     inherit version;
     pname = "sphinxawesome_theme";
-    hash = "sha256-wk8eXAueR1OA0W/F8fO/2ElVgX2gkF2V9+IICdfNPF0=";
+    hash = "sha256-BinTi4Cu/CebEYbFOnpvryHnIbWy7NoU9IjKEHTiYx8=";
   };
 
-  build-system = [ poetry-core pythonRelaxDepsHook ];
+  build-system = [ poetry-core ];
   dependencies = [
     sphinx
     beautifulsoup4

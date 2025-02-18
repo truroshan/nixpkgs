@@ -1,51 +1,51 @@
 {
-  lib
-, fetchFromGitHub
-, rustPlatform
-, pkg-config
-, stdenv
-, darwin
-, libusb1
-, udev
-, nix-update-script
-, testers
-, cyme
+  lib,
+  fetchFromGitHub,
+  rustPlatform,
+  pkg-config,
+  stdenv,
+  darwin,
+  libusb1,
+  nix-update-script,
+  testers,
+  cyme,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "cyme";
-  version = "1.6.1";
+  version = "1.8.5";
 
   src = fetchFromGitHub {
     owner = "tuna-f1sh";
     repo = "cyme";
     rev = "v${version}";
-    hash = "sha256-HIOrdVChTfYX8AKqytWU+EudFDiqoVELb+yL3jsPQwM=";
+    hash = "sha256-4lnW6p7MaAZdvyXddIoB8TuEQSCmBYOwyvOA1r2ZKxk=";
   };
 
-  cargoLock = {
-    lockFile = ./Cargo.lock;
-    outputHashes = {
-      "libudev-sys-0.1.4" = "sha256-7dUqPH8bQ/QSBIppxQbymwQ44Bvi1b6N2AMUylbyKK8=";
-    };
-  };
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-eUBhMI/ff99SEU76yYvCzEvyLHtQqXgk/bHqmxPQlnc=";
 
-  nativeBuildInputs = [
-    pkg-config
-  ] ++ lib.optionals stdenv.isDarwin [
-    darwin.DarwinTools
-  ];
+  nativeBuildInputs =
+    [
+      pkg-config
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      darwin.DarwinTools
+    ];
 
   buildInputs = [
     libusb1
-  ] ++ lib.optionals stdenv.isLinux [
-    udev
   ];
 
-  checkFlags = lib.optionals stdenv.isDarwin [
-    # system_profiler is not available in the sandbox
-    "--skip=test_run"
-  ];
+  checkFlags =
+    [
+      # doctest that requires access outside sandbox
+      "--skip=udev::hwdb::get"
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      # system_profiler is not available in the sandbox
+      "--skip=test_run"
+    ];
 
   passthru = {
     updateScript = nix-update-script { };
@@ -56,6 +56,7 @@ rustPlatform.buildRustPackage rec {
 
   meta = with lib; {
     homepage = "https://github.com/tuna-f1sh/cyme";
+    changelog = "https://github.com/tuna-f1sh/cyme/releases/tag/${src.rev}";
     description = "Modern cross-platform lsusb";
     license = licenses.gpl3Plus;
     maintainers = with maintainers; [ h7x4 ];

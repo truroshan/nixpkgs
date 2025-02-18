@@ -1,59 +1,59 @@
-{ cmake
-, alsa-lib
-, atk
-, cairo
-, directx-shader-compiler
-, expat
-, fetchFromGitHub
-, fontconfig
-, freetype
-, gdk-pixbuf
-, glib
-, gtk3
-, harfbuzz
-, lib
-, libGL
-, libX11
-, libxcb
-, libXcursor
-, libXi
-, libxkbcommon
-, libXrandr
-, makeWrapper
-, mold
-, pango
-, pkg-config
-, python3
-, rustPlatform
-, shaderc
-, stdenv
-, vulkan-extension-layer
-, vulkan-headers
-, vulkan-loader
-, vulkan-tools
-, vulkan-tools-lunarg
-, vulkan-validation-layers
-, wayland
-, wrapGAppsHook3
-, yq
-, zlib
+{
+  cmake,
+  alsa-lib,
+  atk,
+  cairo,
+  directx-shader-compiler,
+  expat,
+  fetchFromGitHub,
+  fontconfig,
+  freetype,
+  gdk-pixbuf,
+  glib,
+  gtk3,
+  harfbuzz,
+  lib,
+  libGL,
+  libX11,
+  libxcb,
+  libXcursor,
+  libXi,
+  libxkbcommon,
+  libXrandr,
+  makeWrapper,
+  mold,
+  pango,
+  pkg-config,
+  python3,
+  rustPlatform,
+  shaderc,
+  vulkan-extension-layer,
+  vulkan-headers,
+  vulkan-loader,
+  vulkan-tools,
+  vulkan-tools-lunarg,
+  vulkan-validation-layers,
+  wayland,
+  wrapGAppsHook3,
+  yq,
+  zlib,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "hyperspeedcube";
-  version = "1.0.6";
+  version = "1.0.7";
 
   src = fetchFromGitHub {
     owner = "HactarCE";
     repo = "Hyperspeedcube";
     rev = "v${version}";
-    hash = "sha256-FcQuXxVxiyI4hOKS70m62BtZMfN5FzGTLagS+2B3WdY=";
+    hash = "sha256-ykFf0dfc8j88Y25tx+G9lic09eHDz3WR+h6+owTeWbU=";
   };
 
   cargoLock = {
     lockFile = ./Cargo.lock;
     outputHashes = {
-     "key-names-1.5.1" = "sha256-ZO3mlCoUHCaMnxD2vQno6GNx0+JmwZ8OiqpyveiVfvc=";
+      "key-names-1.5.1" = "sha256-ZO3mlCoUHCaMnxD2vQno6GNx0+JmwZ8OiqpyveiVfvc=";
     };
   };
 

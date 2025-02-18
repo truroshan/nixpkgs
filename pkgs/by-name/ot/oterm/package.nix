@@ -6,17 +6,18 @@
 
 python3Packages.buildPythonApplication rec {
   pname = "oterm";
-  version = "0.2.9";
+  version = "0.8.3";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "ggozad";
     repo = "oterm";
-    rev = "refs/tags/${version}";
-    hash = "sha256-UOZxktgpuTxkE1+DVnd5T1Fye+2SS2hUDmWtCaGEol0=";
+    tag = version;
+    hash = "sha256-QIvnGU1BHKsJ/UMcS9zS2v9rn51wKoXvx50rGBIAzm4=";
   };
 
   pythonRelaxDeps = [
+    "aiosql"
     "aiosqlite"
     "httpx"
     "ollama"
@@ -26,15 +27,14 @@ python3Packages.buildPythonApplication rec {
     "typer"
   ];
 
-  build-system = with python3Packages; [ poetry-core ];
-
-  nativeBuildInputs = with python3Packages; [ pythonRelaxDepsHook ];
+  build-system = with python3Packages; [ hatchling ];
 
   dependencies = with python3Packages; [
     aiohttp
     aiosql
     aiosqlite
     httpx
+    mcp
     ollama
     packaging
     pillow
@@ -42,6 +42,7 @@ python3Packages.buildPythonApplication rec {
     python-dotenv
     rich-pixels
     textual
+    textualeffects
     typer
   ];
 
@@ -55,7 +56,7 @@ python3Packages.buildPythonApplication rec {
     homepage = "https://github.com/ggozad/oterm";
     changelog = "https://github.com/ggozad/oterm/releases/tag/${version}";
     license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ suhr ];
+    maintainers = with lib.maintainers; [ gaelj ];
     mainProgram = "oterm";
   };
 }

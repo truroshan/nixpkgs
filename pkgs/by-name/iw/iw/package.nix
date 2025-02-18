@@ -8,11 +8,11 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "iw";
-  version = "6.7";
+  version = "6.9";
 
   src = fetchurl {
     url = "https://www.kernel.org/pub/software/network/iw/iw-${finalAttrs.version}.tar.xz";
-    hash = "sha256-qs9JwmaynVANcwhnmKHGUudgwZEmqFmf2BGFBDB4mjU=";
+    hash = "sha256-Py2yKtQcZ1JCuYrjlC2/MRJUjGCkL/c5IQ8t5OmOSJQ=";
   };
 
   nativeBuildInputs = [ pkg-config ];
@@ -39,7 +39,7 @@ stdenv.mkDerivation (finalAttrs: {
     '';
     license = lib.licenses.isc;
     mainProgram = "iw";
-    maintainers = with lib.maintainers; [ AndersonTorres ];
+    maintainers = with lib.maintainers; [ ];
     platforms = lib.platforms.linux;
   };
 })

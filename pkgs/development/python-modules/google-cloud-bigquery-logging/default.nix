@@ -15,19 +15,20 @@
 
 buildPythonPackage rec {
   pname = "google-cloud-bigquery-logging";
-  version = "1.4.3";
+  version = "1.6.0";
   pyproject = true;
 
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
-    inherit pname version;
-    hash = "sha256-7RqwaSthQcwGebhi5F/V//WxBIp5upVS0ToDDsjyURY=";
+    pname = "google_cloud_bigquery_logging";
+    inherit version;
+    hash = "sha256-xcYpIj1xSrNOfBirrlJwc4ccLU9iI2XSz1Bl//EQt1Q=";
   };
 
-  nativeBuildInputs = [ setuptools ];
+  build-system = [ setuptools ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     google-api-core
     grpc-google-iam-v1
     proto-plus

@@ -28,6 +28,7 @@
   packaging,
   pandas,
   passlib,
+  setuptools,
   peft,
   pgmpy,
   plotly,
@@ -41,18 +42,16 @@
   python-jose,
   python-multipart,
   pythonOlder,
-  pythonRelaxDepsHook,
   pyyaml,
   rich,
   schedule,
   scikit-learn,
   sentence-transformers,
   seqeval,
-  setuptools,
   smart-open,
   snorkel,
-  spacy,
   spacy-transformers,
+  spacy,
   sqlalchemy,
   tqdm,
   transformers,
@@ -68,7 +67,7 @@
 
 buildPythonPackage rec {
   pname = "argilla";
-  version = "1.28.0";
+  version = "2.6.0";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -76,9 +75,11 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "argilla-io";
     repo = "argilla";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-gQpJ2umi3IE5BhRu3bM7ONPIP0hb2YG37jGvDKQHZWA=";
+    tag = "v${version}";
+    hash = "sha256-2e2AIhrCJoPDn6EnO4IGSd2YNV/iSY39nmzbcHNwtOU=";
   };
+
+  sourceRoot = "${src.name}/${pname}";
 
   pythonRelaxDeps = [
     "httpx"
@@ -89,8 +90,6 @@ buildPythonPackage rec {
   ];
 
   build-system = [ setuptools ];
-
-  nativeBuildInputs = [ pythonRelaxDepsHook ];
 
   dependencies = [
     httpx
@@ -107,7 +106,7 @@ buildPythonPackage rec {
     typer
   ];
 
-  passthru.optional-dependencies = {
+  optional-dependencies = {
     server =
       [
         aiofiles
@@ -179,14 +178,14 @@ buildPythonPackage rec {
     pytest-mock
     pytest-asyncio
     factory-boy
-  ] ++ lib.flatten (builtins.attrValues passthru.optional-dependencies);
+  ] ++ lib.flatten (builtins.attrValues optional-dependencies);
 
   disabledTestPaths = [ "tests/server/datasets/test_dao.py" ];
 
   meta = with lib; {
     description = "Open-source data curation platform for LLMs";
     homepage = "https://github.com/argilla-io/argilla";
-    changelog = "https://github.com/argilla-io/argilla/releases/tag/v${version}";
+    changelog = "https://github.com/argilla-io/argilla/releases/tag/${src.tag}";
     license = licenses.asl20;
     maintainers = with maintainers; [ happysalada ];
     mainProgram = "argilla";

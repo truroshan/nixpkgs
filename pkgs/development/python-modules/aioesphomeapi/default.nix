@@ -26,7 +26,7 @@
 
 buildPythonPackage rec {
   pname = "aioesphomeapi";
-  version = "24.5.0";
+  version = "29.0.0";
   pyproject = true;
 
   disabled = pythonOlder "3.9";
@@ -34,14 +34,16 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "esphome";
     repo = "aioesphomeapi";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-i/tmPTDb5DJRSj//Ju9OERx8A9S69WkWyoN+j2MO6mI=";
+    tag = "v${version}";
+    hash = "sha256-1H6+/V87mjkBvHwPTs3sgrqY24Gc/MCKb97r2ly6oTA=";
   };
 
   build-system = [
     setuptools
     cython
   ];
+
+  pythonRelaxDeps = [ "cryptography" ];
 
   dependencies = [
     aiohappyeyeballs
@@ -62,6 +64,15 @@ buildPythonPackage rec {
   disabledTests = [
     # https://github.com/esphome/aioesphomeapi/issues/837
     "test_reconnect_logic_stop_callback"
+    # python3.12.4 regression
+    # https://github.com/esphome/aioesphomeapi/issues/889
+    "test_start_connection_cannot_increase_recv_buffer"
+    "test_start_connection_can_only_increase_buffer_size_to_262144"
+  ];
+
+  disabledTestPaths = [
+    # benchmarking requires pytest-codespeed
+    "tests/test_bluetooth_benchmarks.py"
   ];
 
   pythonImportsCheck = [ "aioesphomeapi" ];
@@ -69,7 +80,7 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "Python Client for ESPHome native API";
     homepage = "https://github.com/esphome/aioesphomeapi";
-    changelog = "https://github.com/esphome/aioesphomeapi/releases/tag/v${version}";
+    changelog = "https://github.com/esphome/aioesphomeapi/releases/tag/${src.tag}";
     license = licenses.mit;
     maintainers = with maintainers; [
       fab

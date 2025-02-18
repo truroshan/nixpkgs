@@ -8,7 +8,6 @@
   olefile,
   pytestCheckHook,
   pythonOlder,
-  pythonRelaxDepsHook,
   red-black-tree-mod,
   rtfde,
   setuptools,
@@ -17,7 +16,7 @@
 
 buildPythonPackage rec {
   pname = "extract-msg";
-  version = "0.48.5";
+  version = "0.53.1";
   pyproject = true;
 
   disabled = pythonOlder "3.7";
@@ -25,8 +24,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "TeamMsgExtractor";
     repo = "msg-extractor";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-GBX6VRXXja18azyiJZJ3niKPhAKZxDR8kcFbiC2XgeU=";
+    tag = "v${version}";
+    hash = "sha256-vkWINRUQh/zfKzSJifJMn0EVnBdPODLFdS/jMdGI36I=";
   };
 
   pythonRelaxDeps = [
@@ -35,7 +34,6 @@ buildPythonPackage rec {
   ];
 
   build-system = [
-    pythonRelaxDepsHook
     setuptools
   ];
 

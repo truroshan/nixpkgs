@@ -11,14 +11,14 @@
 
 buildPythonPackage rec {
   pname = "amazon-kclpy";
-  version = "2.1.4";
+  version = "3.0.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "awslabs";
     repo = "amazon-kinesis-client-python";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-TWIGu7WuoaPhk8cz+hMXvGLIPQ5kly8aj20ZtvTZzwg=";
+    tag = "v${version}";
+    hash = "sha256-P/kYRFDmWcqvnAaKYx22PwtC51JlYB0qopO3+QuRHAk=";
   };
 
   patches = [

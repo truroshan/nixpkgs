@@ -9,7 +9,6 @@
   lxml,
   packageurl-python,
   py-serializable,
-  pythonRelaxDepsHook,
   poetry-core,
   pytestCheckHook,
   pythonOlder,
@@ -24,7 +23,7 @@
 
 buildPythonPackage rec {
   pname = "cyclonedx-python-lib";
-  version = "7.4.1";
+  version = "8.8.0";
   pyproject = true;
 
   disabled = pythonOlder "3.9";
@@ -32,13 +31,13 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "CycloneDX";
     repo = "cyclonedx-python-lib";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-ATeSMS8WaJS/2CaeNQgaK/6zyQBw07+6YYTZdhZPJug=";
+    tag = "v${version}";
+    hash = "sha256-igT1QroP260cqSAiaJv4Zrji691WIjyDLZ1p5dtPF5Y=";
   };
 
-  build-system = [ poetry-core ];
+  pythonRelaxDeps = [ "py-serializable" ];
 
-  nativeBuildInputs = [ pythonRelaxDepsHook ];
+  build-system = [ poetry-core ];
 
   dependencies = [
     importlib-metadata
@@ -53,17 +52,26 @@ buildPythonPackage rec {
     types-toml
   ];
 
+  optional-dependencies = {
+    validation = [
+      jsonschema
+      lxml
+    ];
+    json-validation = [
+      jsonschema
+    ];
+    xml-validation = [
+      lxml
+    ];
+  };
+
   nativeCheckInputs = [
     ddt
-    jsonschema
-    lxml
     pytestCheckHook
     xmldiff
-  ];
+  ] ++ lib.flatten (builtins.attrValues optional-dependencies);
 
   pythonImportsCheck = [ "cyclonedx" ];
-
-  pythonRelaxDeps = [ "py-serializable" ];
 
   preCheck = ''
     export PYTHONPATH=tests''${PYTHONPATH+:$PYTHONPATH}
@@ -87,7 +95,7 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "Python library for generating CycloneDX SBOMs";
     homepage = "https://github.com/CycloneDX/cyclonedx-python-lib";
-    changelog = "https://github.com/CycloneDX/cyclonedx-python-lib/releases/tag/v${version}";
+    changelog = "https://github.com/CycloneDX/cyclonedx-python-lib/releases/tag/${src.tag}";
     license = with licenses; [ asl20 ];
     maintainers = with maintainers; [ fab ];
   };

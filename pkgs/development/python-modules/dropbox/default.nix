@@ -12,7 +12,6 @@
   pytestCheckHook,
   sphinxHook,
   sphinx-rtd-theme,
-  pythonRelaxDepsHook,
 }:
 
 buildPythonPackage rec {
@@ -30,7 +29,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "dropbox";
     repo = "dropbox-sdk-python";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-9Fsh06V226vIyJhrlLkh9Xr4UGoEIISnIFCtuKqI218=";
   };
 
@@ -53,14 +52,11 @@ buildPythonPackage rec {
       --replace "'pytest-runner==5.2.0'," ""
   '';
 
-  doCheck = true;
-
   pythonImportsCheck = [ "dropbox" ];
 
   nativeBuildInputs = [
     sphinxHook
     sphinx-rtd-theme
-    pythonRelaxDepsHook
   ];
 
   # Version 12.0.0 re-introduced Python 2 support and set some very restrictive version bounds

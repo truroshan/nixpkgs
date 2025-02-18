@@ -1,49 +1,50 @@
-{ alsa-lib
-, at-spi2-core
-, brotli
-, cmake
-, curl
-, dbus
-, libepoxy
-, fetchFromGitHub
-, freeglut
-, freetype
-, gtk2-x11
-, lib
-, libGL
-, libXcursor
-, libXdmcp
-, libXext
-, libXinerama
-, libXrandr
-, libXtst
-, libdatrie
-, libjack2
-, libpsl
-, libselinux
-, libsepol
-, libsysprof-capture
-, libthai
-, libxkbcommon
-, lv2
-, pcre
-, pkg-config
-, python3
-, sqlite
-, stdenv
-, util-linuxMinimal
-, webkitgtk
+{
+  alsa-lib,
+  at-spi2-core,
+  brotli,
+  cmake,
+  curl,
+  dbus,
+  libepoxy,
+  fetchFromGitHub,
+  libglut,
+  freetype,
+  gtk2-x11,
+  lib,
+  libGL,
+  libXcursor,
+  libXdmcp,
+  libXext,
+  libXinerama,
+  libXrandr,
+  libXtst,
+  libdatrie,
+  libjack2,
+  libpsl,
+  libselinux,
+  libsepol,
+  libsysprof-capture,
+  libthai,
+  libxkbcommon,
+  lv2,
+  pcre,
+  pkg-config,
+  python3,
+  sqlite,
+  stdenv,
+  util-linuxMinimal,
+  webkitgtk_4_0,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "chow-kick";
-  version = "1.1.1";
+  version = "1.2.0";
 
   src = fetchFromGitHub {
     owner = "Chowdhury-DSP";
     repo = "ChowKick";
     rev = "v${finalAttrs.version}";
-    sha256 = "0amnp0p7ckbbr9dcbdnld1ryv46kvza2dj8m6hzmi7c1s4df8x5q";
+    hash = "sha256-YYcNiJGGw21aVY03tyQLu3wHCJhxYiDNJZ+LWNbQdj4=";
     fetchSubmodules = true;
   };
 
@@ -58,7 +59,7 @@ stdenv.mkDerivation (finalAttrs: {
     curl
     dbus
     libepoxy
-    freeglut
+    libglut
     freetype
     gtk2-x11
     libGL
@@ -81,7 +82,7 @@ stdenv.mkDerivation (finalAttrs: {
     python3
     sqlite
     util-linuxMinimal
-    webkitgtk
+    webkitgtk_4_0
   ];
 
   cmakeFlags = [

@@ -3,7 +3,6 @@
   stdenv,
   buildPythonPackage,
   fetchFromGitHub,
-  pythonRelaxDepsHook,
 
   # build-system
   setuptools,
@@ -15,6 +14,7 @@
   coloredlogs,
   crc,
   libgpiod,
+  pyserial-asyncio-fast,
   typing-extensions,
   zigpy,
 
@@ -27,23 +27,21 @@
 
 buildPythonPackage rec {
   pname = "universal-silabs-flasher";
-  version = "0.0.20";
+  version = "0.0.28";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "NabuCasa";
     repo = "universal-silabs-flasher";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-+wmBsb7zsN6vdNqUvozV317kEZCg1b+lBToRSdN2YM4=";
+    tag = "v${version}";
+    hash = "sha256-ZV2yldOzcH4Su31dmkE1f0JXDZI6SsSZGi4KyFvzRb4=";
   };
 
   postPatch = ''
     substituteInPlace pyproject.toml \
-      --replace-fail '"setuptools-git-versioning<2"' "" \
+      --replace-fail '"setuptools-git-versioning>=2.0,<3"' "" \
       --replace-fail 'dynamic = ["version"]' 'version = "${version}"'
   '';
-
-  nativeBuildInputs = [ pythonRelaxDepsHook ];
 
   build-system = [ setuptools ];
 
@@ -58,6 +56,7 @@ buildPythonPackage rec {
     click
     coloredlogs
     crc
+    pyserial-asyncio-fast
     typing-extensions
     zigpy
   ] ++ lib.optionals (stdenv.hostPlatform.isLinux) [ libgpiod ];
@@ -72,7 +71,7 @@ buildPythonPackage rec {
   pythonImportsCheck = [ "universal_silabs_flasher" ];
 
   meta = with lib; {
-    changelog = "https://github.com/NabuCasa/universal-silabs-flasher/releases/tag/v${version}";
+    changelog = "https://github.com/NabuCasa/universal-silabs-flasher/releases/tag/${src.tag}";
     description = "Flashes Silicon Labs radios running EmberZNet or CPC multi-pan firmware";
     mainProgram = "universal-silabs-flasher";
     homepage = "https://github.com/NabuCasa/universal-silabs-flasher";

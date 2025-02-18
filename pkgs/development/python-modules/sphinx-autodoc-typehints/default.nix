@@ -11,27 +11,29 @@
 
 let
   pname = "sphinx-autodoc-typehints";
-  version = "2.1.0";
+  version = "3.0.1";
 in
 
 buildPythonPackage {
   inherit pname version;
-  format = "pyproject";
+  pyproject = true;
 
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     pname = "sphinx_autodoc_typehints";
     inherit version;
-    hash = "sha256-Ub+Nx3xPunR+MvBzUAKpFQB0fQVTyuYWhjhI6PXkn+g=";
+    hash = "sha256-ubQN0V3uVPb4EMkk+GP5zxxU+fMmXElRQOoBvn9E+lU=";
   };
 
-  nativeBuildInputs = [
+  pythonRelaxDeps = [ "sphinx" ];
+
+  build-system = [
     hatch-vcs
     hatchling
   ];
 
-  propagatedBuildInputs = [ sphinx ];
+  dependencies = [ sphinx ];
 
   nativeCheckInputs = [ pytestCheckHook ];
 

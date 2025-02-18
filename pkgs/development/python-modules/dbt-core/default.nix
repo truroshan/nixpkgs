@@ -2,81 +2,76 @@
   lib,
   agate,
   buildPythonPackage,
-  cffi,
   click,
-  colorama,
+  daff,
+  dbt-adapters,
+  dbt-common,
   dbt-extractor,
   dbt-semantic-interfaces,
   fetchFromGitHub,
-  hologram,
-  idna,
-  isodate,
   jinja2,
   logbook,
   mashumaro,
-  minimal-snowplow-tracker,
   networkx,
   packaging,
   pathspec,
   protobuf,
-  python3,
+  callPackage,
   pythonOlder,
-  pythonRelaxDepsHook,
   pytz,
   pyyaml,
   requests,
   setuptools,
+  snowplow-tracker,
   sqlparse,
   typing-extensions,
-  urllib3,
-  werkzeug,
 }:
 
 buildPythonPackage rec {
   pname = "dbt-core";
-  version = "1.7.14";
+  version = "1.9.1";
   pyproject = true;
 
-  disabled = pythonOlder "3.8";
+  disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "dbt-labs";
     repo = "dbt-core";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-4PydrJGhriGCB6oc4kQE8/a24Sn9cqZhoKsiBJuEDYM=";
+    tag = "v${version}";
+    hash = "sha256-2WFCFzAS3HWx/cwYi1D6LZ0APFp83lGjpP1l7Yfcups=";
   };
 
   sourceRoot = "${src.name}/core";
 
   pythonRelaxDeps = [
+    "protobuf"
     "agate"
     "click"
+    "dbt-common"
+    "dbt-semantic-interfaces"
+    "logbook"
     "mashumaro"
     "networkx"
-    "logbook"
     "pathspec"
+    "protobuf"
     "urllib3"
   ];
 
   build-system = [
-    pythonRelaxDepsHook
     setuptools
   ];
 
   dependencies = [
     agate
-    cffi
     click
-    colorama
+    daff
+    dbt-adapters
+    dbt-common
     dbt-extractor
     dbt-semantic-interfaces
-    hologram
-    idna
-    isodate
     jinja2
     logbook
     mashumaro
-    minimal-snowplow-tracker
     networkx
     packaging
     pathspec
@@ -84,17 +79,16 @@ buildPythonPackage rec {
     pytz
     pyyaml
     requests
+    snowplow-tracker
     sqlparse
     typing-extensions
-    urllib3
-    werkzeug
   ] ++ mashumaro.optional-dependencies.msgpack;
 
   # tests exist for the dbt tool but not for this package specifically
   doCheck = false;
 
   passthru = {
-    withAdapters = python3.pkgs.callPackage ./with-adapters.nix { };
+    withAdapters = callPackage ./with-adapters.nix { };
   };
 
   meta = with lib; {
@@ -116,7 +110,7 @@ buildPythonPackage rec {
         ])
     '';
     homepage = "https://github.com/dbt-labs/dbt-core";
-    changelog = "https://github.com/dbt-labs/dbt-core/blob/v${version}/CHANGELOG.md";
+    changelog = "https://github.com/dbt-labs/dbt-core/blob/${src.tag}/CHANGELOG.md";
     license = licenses.asl20;
     maintainers = with maintainers; [
       mausch

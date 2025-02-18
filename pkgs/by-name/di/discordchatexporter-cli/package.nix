@@ -8,17 +8,17 @@
 
 buildDotnetModule rec {
   pname = "discordchatexporter-cli";
-  version = "2.43.1";
+  version = "2.43.3";
 
   src = fetchFromGitHub {
     owner = "tyrrrz";
     repo = "discordchatexporter";
     rev = version;
-    hash = "sha256-MLOWZJehajB002SqBW2HJTjr00eU9RV+Weu3rmgoEew=";
+    hash = "sha256-r9bvTgqKQY605BoUlysSz4WJMxn2ibNh3EhoMYCfV3c=";
   };
 
   projectFile = "DiscordChatExporter.Cli/DiscordChatExporter.Cli.csproj";
-  nugetDeps = ./deps.nix;
+  nugetDeps = ./deps.json;
   dotnet-sdk = dotnetCorePackages.sdk_8_0;
   dotnet-runtime = dotnetCorePackages.runtime_8_0;
 
@@ -39,8 +39,8 @@ buildDotnetModule rec {
     homepage = "https://github.com/Tyrrrz/DiscordChatExporter";
     license = licenses.gpl3Plus;
     changelog = "https://github.com/Tyrrrz/DiscordChatExporter/blob/${version}/Changelog.md";
-    maintainers = with maintainers; [ eclairevoyant ivar ];
-    platforms = [ "x86_64-linux" ];
+    maintainers = with maintainers; [ ];
+    platforms = platforms.unix;
     mainProgram = "discordchatexporter-cli";
   };
 }

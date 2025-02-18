@@ -1,6 +1,7 @@
-{ lib
-, fetchFromGitHub
-, python3
+{
+  lib,
+  fetchFromGitHub,
+  python3,
 }:
 
 python3.pkgs.buildPythonApplication rec {
@@ -19,16 +20,19 @@ python3.pkgs.buildPythonApplication rec {
     wheel
   ];
 
-  propagatedBuildInputs = with python3.pkgs; [
-    requests
-    grequests
-    cjkwrap
-    pytz
-    beautifulsoup4
-    lxml
-    mpv
-    python-vlc
-  ] ++ requests.optional-dependencies.socks;
+  propagatedBuildInputs =
+    with python3.pkgs;
+    [
+      requests
+      grequests
+      cjkwrap
+      pytz
+      beautifulsoup4
+      lxml
+      mpv
+      python-vlc
+    ]
+    ++ requests.optional-dependencies.socks;
 
   nativeCheckInputs = with python3.pkgs; [
     pytestCheckHook
@@ -38,9 +42,15 @@ python3.pkgs.buildPythonApplication rec {
     "tests"
   ];
 
-  disabledTests = [ "test_datafile_download" ];
+  # Disable tests that are problematic with pytest
+  # Check NixOS/nixpkgs#333019 for more info about these
+  disabledTests = [
+    "test_datafile_download"
+    "test_display_get_input_str"
+    "test_display_get_y_n"
+  ];
 
-  pythonImportCheck = [
+  pythonImportsCheck = [
     "castero"
   ];
 

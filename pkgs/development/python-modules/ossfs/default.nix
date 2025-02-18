@@ -6,7 +6,6 @@
   fsspec,
   oss2,
   pythonOlder,
-  pythonRelaxDepsHook,
   setuptools-scm,
 }:
 
@@ -20,7 +19,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "fsspec";
     repo = pname;
-    rev = "refs/tags/${version}";
+    tag = version;
     hash = "sha256-N1NkpI8inGJCf0xuc+FFmVX85CS7vqzoNddxZ9kqEk0=";
   };
 
@@ -31,7 +30,6 @@ buildPythonPackage rec {
   ];
 
   nativeBuildInputs = [
-    pythonRelaxDepsHook
     setuptools-scm
   ];
 

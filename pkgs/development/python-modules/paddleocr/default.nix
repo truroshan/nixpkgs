@@ -1,7 +1,6 @@
 {
   lib,
   buildPythonPackage,
-  pythonRelaxDepsHook,
   fetchFromGitHub,
   attrdict,
   beautifulsoup4,
@@ -11,11 +10,10 @@
   lmdb,
   lxml,
   numpy,
-  opencv4,
+  opencv-python,
   openpyxl,
   pdf2docx,
   pillow,
-  premailer,
   pyclipper,
   pymupdf,
   python-docx,
@@ -29,9 +27,9 @@
 }:
 
 let
-  version = "2.7.1";
+  version = "2.9.1";
 in
-buildPythonPackage {
+buildPythonPackage rec {
   pname = "paddleocr";
   inherit version;
   format = "setuptools";
@@ -39,8 +37,8 @@ buildPythonPackage {
   src = fetchFromGitHub {
     owner = "PaddlePaddle";
     repo = "PaddleOCR";
-    rev = "v${version}";
-    hash = "sha256-5Dt4UL+7dwJNjcNnCVi3o8bLCt7/m/M6oh1vPu9rza8=";
+    tag = "v${version}";
+    hash = "sha256-QCddxgVdLaAJLfKCy+tnQsxownfl1Uv0TXhFRiFi9cY=";
   };
 
   patches = [
@@ -55,13 +53,11 @@ buildPythonPackage {
     ./remove-import-imaug.patch
   ];
 
-  nativeBuildInputs = [ pythonRelaxDepsHook ];
   # trying to relax only pymupdf makes the whole build fail
   pythonRelaxDeps = true;
   pythonRemoveDeps = [
     "imgaug"
     "visualdl"
-    "opencv-python"
     "opencv-contrib-python"
   ];
 
@@ -74,11 +70,10 @@ buildPythonPackage {
     lmdb
     lxml
     numpy
-    opencv4
+    opencv-python
     openpyxl
     pdf2docx
     pillow
-    premailer
     pyclipper
     pymupdf
     python-docx
@@ -105,7 +100,7 @@ buildPythonPackage {
       PaddleOCR aims to create multilingual, awesome, leading, and practical OCR
       tools that help users train better models and apply them into practice.
     '';
-    changelog = "https://github.com/PaddlePaddle/PaddleOCR/releases/tag/v${version}";
+    changelog = "https://github.com/PaddlePaddle/PaddleOCR/releases/tag/${src.tag}";
     maintainers = with maintainers; [ happysalada ];
     platforms = [
       "x86_64-linux"

@@ -1,8 +1,9 @@
-{ lib
-, fetchFromGitHub
-, makeWrapper
-, python3
-, enableUsageTracking ? false
+{
+  lib,
+  fetchFromGitHub,
+  makeWrapper,
+  python3,
+  enableUsageTracking ? false,
 }:
 
 python3.pkgs.buildPythonApplication rec {
@@ -13,7 +14,7 @@ python3.pkgs.buildPythonApplication rec {
   src = fetchFromGitHub {
     owner = "idoavrah";
     repo = "terraform-tui";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-xOlPuPVwfVT7jfBJPqZ5FbOs80HE0k2ZqcA+Jcxh9p4=";
   };
 
@@ -24,7 +25,6 @@ python3.pkgs.buildPythonApplication rec {
   nativeBuildInputs = with python3.pkgs; [
     makeWrapper
     poetry-core
-    pythonRelaxDepsHook
   ];
 
   propagatedBuildInputs = with python3.pkgs; [

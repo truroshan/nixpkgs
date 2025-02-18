@@ -6,7 +6,6 @@
   ordered-set,
   pillow,
   pythonOlder,
-  pythonRelaxDepsHook,
   setuptools,
   setuptools-dso,
   sortedcollections,
@@ -14,20 +13,19 @@
 
 buildPythonPackage rec {
   pname = "tilequant";
-  version = "1.1.0";
+  version = "1.2.0";
   pyproject = true;
 
   disabled = pythonOlder "3.9";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-uW1g3nlT6Y+1beifo/MOlGxsGL7on/jcAROxSddySHk=";
+    hash = "sha256-0i7brL/hn8SOj3q/rpOcOQ9QW/4Mew2fr0Y42k4K9UI=";
   };
 
   pythonRelaxDeps = [ "pillow" ];
 
   build-system = [
-    pythonRelaxDepsHook
     setuptools
   ];
 

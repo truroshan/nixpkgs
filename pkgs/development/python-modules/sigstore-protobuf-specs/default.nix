@@ -9,7 +9,7 @@
 
 buildPythonPackage rec {
   pname = "sigstore-protobuf-specs";
-  version = "0.3.1";
+  version = "0.3.5";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -17,7 +17,7 @@ buildPythonPackage rec {
   src = fetchPypi {
     pname = "sigstore_protobuf_specs";
     inherit version;
-    hash = "sha256-xAthl1uVeukG6ymlvHBA7AFbaLa0YAXMWAXmKUk+jew=";
+    hash = "sha256-yl0XAXrefexbuaABweDkXa5G+L2lk+j6sG6mjurBzpw=";
   };
 
   nativeBuildInputs = [ flit-core ];

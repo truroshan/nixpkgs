@@ -18,7 +18,7 @@
 
 buildPythonPackage rec {
   pname = "jedi";
-  version = "0.19.1";
+  version = "0.19.2";
   pyproject = true;
 
   disabled = pythonOlder "3.6";
@@ -27,13 +27,13 @@ buildPythonPackage rec {
     owner = "davidhalter";
     repo = "jedi";
     rev = "v${version}";
-    hash = "sha256-MD7lIKwAwULZp7yLE6jiao2PU6h6RIl0SQ/6b4Lq+9I=";
+    hash = "sha256-2nDQJS6LIaq91PG3Av85OMFfs1ZwId00K/kvog3PGXE=";
     fetchSubmodules = true;
   };
 
-  nativeBuildInputs = [ setuptools ];
+  build-system = [ setuptools ];
 
-  propagatedBuildInputs = [ parso ];
+  dependencies = [ parso ];
 
   nativeCheckInputs = [
     attrs
@@ -49,9 +49,13 @@ buildPythonPackage rec {
       # sensitive to platform, causes false negatives on darwin
       "test_import"
     ]
-    ++ lib.optionals (stdenv.isAarch64 && pythonOlder "3.9") [
-      # AssertionError: assert 'foo' in ['setup']
-      "test_init_extension_module"
+    ++ lib.optionals (stdenv.targetPlatform.useLLVM or false) [
+      # InvalidPythonEnvironment: The python binary is potentially unsafe.
+      "test_create_environment_executable"
+      # AssertionError: assert ['', '.1000000000000001'] == ['', '.1']
+      "test_dict_keys_completions"
+      # AssertionError: assert ['', '.1000000000000001'] == ['', '.1']
+      "test_dict_completion"
     ];
 
   meta = with lib; {
@@ -59,6 +63,6 @@ buildPythonPackage rec {
     homepage = "https://github.com/davidhalter/jedi";
     changelog = "https://github.com/davidhalter/jedi/blob/${version}/CHANGELOG.rst";
     license = licenses.mit;
-    maintainers = with maintainers; [ ];
+    maintainers = [ ];
   };
 }

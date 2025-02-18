@@ -5,24 +5,22 @@
   buildPythonPackage,
   cryptodatahub,
   fetchPypi,
-  pytestCheckHook,
   python-dateutil,
   pythonOlder,
   setuptools,
-  unittestCheckHook,
   urllib3,
 }:
 
 buildPythonPackage rec {
   pname = "cryptoparser";
-  version = "0.12.4";
+  version = "1.0.0";
   pyproject = true;
 
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-y5rpc0tn5JJQr4xdRUJbsq8XT/YqqJqZr3CXjqN7k7I=";
+    hash = "sha256-bEvhMVcm9sXlfhxUD2K4N10nusgxpGYFJQLtJE1/qok=";
   };
 
   postPatch = ''

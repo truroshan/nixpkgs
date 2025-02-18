@@ -1,7 +1,7 @@
 {
   lib,
-  aiohttp,
   aiohttp-retry,
+  aiohttp,
   aiounittest,
   buildPythonPackage,
   cryptography,
@@ -9,9 +9,10 @@
   fetchFromGitHub,
   mock,
   multidict,
-  pyngrok,
   pyjwt,
+  pyngrok,
   pytestCheckHook,
+  pythonAtLeast,
   pythonOlder,
   pytz,
   requests,
@@ -20,7 +21,7 @@
 
 buildPythonPackage rec {
   pname = "twilio";
-  version = "9.2.1";
+  version = "9.4.5";
   pyproject = true;
 
   disabled = pythonOlder "3.7";
@@ -28,8 +29,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "twilio";
     repo = "twilio-python";
-    rev = "refs/tags/${version}";
-    hash = "sha256-lCa9dV8rYyGRff+uOKIT0eq5PRItGRuedgY7IrRZ714=";
+    tag = version;
+    hash = "sha256-+lg+rV3BueELZGk4sOOryZmI560oAVjT+AYdeJpqC1U=";
   };
 
   build-system = [ setuptools ];
@@ -42,9 +43,6 @@ buildPythonPackage rec {
     pytz
     requests
   ];
-
-  # aiounittest is not supported on 3.12
-  doCheck = pythonOlder "3.12";
 
   nativeCheckInputs = [
     aiounittest

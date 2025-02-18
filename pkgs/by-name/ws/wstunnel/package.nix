@@ -1,13 +1,14 @@
-{ lib
-, fetchFromGitHub
-, rustPlatform
-, testers
-, wstunnel
-, nixosTests
+{
+  lib,
+  fetchFromGitHub,
+  rustPlatform,
+  nixosTests,
+  nix-update-script,
+  versionCheckHook,
 }:
 
 let
-  version = "9.7.0";
+  version = "10.1.9";
 in
 
 rustPlatform.buildRustPackage {
@@ -17,20 +18,30 @@ rustPlatform.buildRustPackage {
   src = fetchFromGitHub {
     owner = "erebe";
     repo = "wstunnel";
-    rev = "v${version}";
-    hash = "sha256-8bLccR6ZmldmrvjlZKFHEa4PoLzyUcLkyQbwSrJjoyY=";
+    tag = "v${version}";
+    hash = "sha256-39VPPPBKUhl17PJBa7wJi0H4jghTRjy9cFgihgK+mFE=";
   };
 
-  cargoHash = "sha256-IAq7Fyr6Ne1Bq18WfqBoppel9FOWSs8PkiXKMwcJ26c=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-3+vq/IJ526t7UQ6FcrTKOD1umUD07amCa3b0myfbxrI=";
+
+  cargoBuildFlags = [ "--package wstunnel-cli" ];
+
+  nativeBuildInputs = [ versionCheckHook ];
+  versionCheckProgramArg = "--version";
+  doInstallCheck = true;
 
   checkFlags = [
     # Tries to launch a test container
     "--skip=tcp::tests::test_proxy_connection"
+    "--skip=protocols::tcp::server::tests::test_proxy_connection"
   ];
 
-  passthru.tests = {
-    version = testers.testVersion { package = wstunnel; };
-    nixosTest = nixosTests.wstunnel;
+  passthru = {
+    updateScript = nix-update-script { };
+    tests = {
+      nixosTest = nixosTests.wstunnel;
+    };
   };
 
   meta = {
@@ -38,7 +49,11 @@ rustPlatform.buildRustPackage {
     homepage = "https://github.com/erebe/wstunnel";
     changelog = "https://github.com/erebe/wstunnel/releases/tag/v${version}";
     license = lib.licenses.bsd3;
-    maintainers = with lib.maintainers; [ rvdp neverbehave ];
+    maintainers = with lib.maintainers; [
+      raylas
+      rvdp
+      neverbehave
+    ];
     mainProgram = "wstunnel";
   };
 }

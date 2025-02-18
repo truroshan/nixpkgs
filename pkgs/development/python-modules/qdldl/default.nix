@@ -3,28 +3,33 @@
   buildPythonPackage,
   fetchPypi,
   cmake,
-  pybind11,
   numpy,
+  pybind11,
+  setuptools,
   scipy,
   pytestCheckHook,
 }:
 
 buildPythonPackage rec {
   pname = "qdldl";
-  version = "0.1.7.post2";
-  format = "setuptools";
+  version = "0.1.7.post5";
+  pyproject = true;
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-SxU5pewQzHV6/XFW1960AGAHythtd0yfD9w+NEFVV9M=";
+    hash = "sha256-CxOZ4cSbW+1arI/WPvCKtwjTQMN/tCb+ABKLwfNrKG4=";
   };
 
   dontUseCmakeConfigure = true;
-  nativeBuildInputs = [ cmake ];
 
-  buildInputs = [ pybind11 ];
+  build-system = [
+    cmake
+    numpy
+    pybind11
+    setuptools
+  ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     numpy
     scipy
   ];

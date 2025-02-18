@@ -1,38 +1,42 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, rustPlatform
-, pkg-config
-, openssl
-, CoreServices
-, Security
-, SystemConfiguration
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  rustPlatform,
+  pkg-config,
+  openssl,
+  CoreServices,
+  Security,
+  SystemConfiguration,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "twitch-tui";
-  version = "2.6.12";
+  version = "2.6.18";
 
   src = fetchFromGitHub {
     owner = "Xithrius";
     repo = pname;
-    rev = "refs/tags/v${version}";
-    hash = "sha256-mEpeuopMzZhWOAikEP7Er8xcgNkGbCTkJJYrQr7GrBQ=";
+    tag = "v${version}";
+    hash = "sha256-uo9QEwSRIJKjWza8dEQXDCMQ/ydKBk/BX2TaVhX+k1M=";
   };
 
-  cargoHash = "sha256-U9L4SrYTAUcQ9/2f8tD7jxByVQS9P6OXpra6QvbhNNg=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-H/MAbN7wCg74bNWt5xlNaukvGJLYyzuynYtIqxBOcbo=";
 
   nativeBuildInputs = [
     pkg-config
   ];
 
-  buildInputs = [
-    openssl
-  ] ++ lib.optionals stdenv.isDarwin [
-    CoreServices
-    Security
-    SystemConfiguration
-  ];
+  buildInputs =
+    [
+      openssl
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      CoreServices
+      Security
+      SystemConfiguration
+    ];
 
   meta = with lib; {
     description = "Twitch chat in the terminal";

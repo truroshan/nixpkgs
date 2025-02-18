@@ -1,14 +1,18 @@
-{ lib, buildFishPlugin, fetchFromGitHub }:
+{
+  lib,
+  buildFishPlugin,
+  fetchFromGitHub,
+}:
 
 buildFishPlugin rec {
   pname = "hydro";
-  version = "unstable-2022-02-21";
+  version = "0-unstable-2024-11-02";
 
   src = fetchFromGitHub {
     owner = "jorgebucaran";
     repo = "hydro";
-    rev = "d4875065ceea226f58ead97dd9b2417937344d6e";
-    sha256 = "sha256-nXeDnqqOuZyrqGTPEQtYlFvrFvy1bZVMF4CA37b0lsE=";
+    rev = "9c93b89573bd722f766f2190a862ae55e728f6ba";
+    hash = "sha256-QYq4sU41/iKvDUczWLYRGqDQpVASF/+6brJJ8IxypjE=";
   };
 
   meta = with lib; {

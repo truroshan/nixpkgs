@@ -2,15 +2,15 @@
   lib,
   buildPythonPackage,
   fetchPypi,
-  setuptools,
   pythonOlder,
+  setuptools,
+  tqdm,
   z3-solver,
-  pythonRelaxDepsHook,
 }:
 
 buildPythonPackage rec {
   pname = "model-checker";
-  version = "0.4.9";
+  version = "0.7.17";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -18,7 +18,7 @@ buildPythonPackage rec {
   src = fetchPypi {
     pname = "model_checker";
     inherit version;
-    hash = "sha256-BUkbCllM2qN5yKTvte2iwnmBXQAzu2N8LTGRfvOTKUQ=";
+    hash = "sha256-u9WHYglZG+SytH2qiUJV7YI+zCZ6UIdORXgSgcYgFYc=";
   };
 
   # z3 does not provide a dist-info, so python-runtime-deps-check will fail
@@ -26,9 +26,10 @@ buildPythonPackage rec {
 
   build-system = [ setuptools ];
 
-  nativeBuildInputs = [ pythonRelaxDepsHook ];
-
-  dependencies = [ z3-solver ];
+  dependencies = [
+    tqdm
+    z3-solver
+  ];
 
   # Tests have multiple issues, ImportError, TypeError, etc.
   # Check with the next release > 0.3.13

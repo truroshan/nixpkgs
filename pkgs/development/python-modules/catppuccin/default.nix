@@ -4,6 +4,7 @@
   fetchFromGitHub,
   poetry-core,
   poetry-dynamic-versioning,
+  matplotlib,
   pygments,
   rich,
   pytestCheckHook,
@@ -11,15 +12,15 @@
 
 buildPythonPackage rec {
   pname = "catppuccin";
-  version = "2.2.0";
+  version = "2.3.4";
 
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "catppuccin";
     repo = "python";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-+V1rln3FlFvs1FEIANIch7k/b2EsI9xBxhg3Bwg99+I=";
+    tag = "v${version}";
+    hash = "sha256-0+sbf2m0vJCf6EOl6DMqgtL35RJh+rehi/p0ylTPJK8=";
   };
 
   build-system = [
@@ -28,6 +29,7 @@ buildPythonPackage rec {
   ];
 
   optional-dependencies = {
+    matplotlib = [ matplotlib ];
     pygments = [ pygments ];
     rich = [ rich ];
   };

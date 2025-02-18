@@ -1,21 +1,22 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, qtbase
-, qt6
-, wrapQtAppsHook
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  qtbase,
+  qt6,
+  wrapQtAppsHook,
 }:
 
 stdenv.mkDerivation rec {
   pname = "maskromtool";
-  version = "2024-05-19";
+  version = "2024-08-18";
 
   src = fetchFromGitHub {
     owner = "travisgoodspeed";
     repo = "maskromtool";
     rev = "v${version}";
-    hash = "sha256-cG1OT5sbDW7uU7t+uh7GAdabd2zRlDTan2qPxBNHJTo=";
+    hash = "sha256-iuCjAAVEKVwJuAgKITwkXGhKau2DVWhFQLPjp28tjIo=";
   };
 
   buildInputs = [

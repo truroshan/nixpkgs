@@ -1,28 +1,29 @@
-{ lib
-, stdenv
-, fetchFromGitLab
-, meson
-, ninja
-, pkg-config
-, gst_all_1
-, wrapGAppsHook4
-, appstream-glib
-, gtk4
-, libadwaita
-, desktop-file-utils
-, libGL
+{
+  lib,
+  stdenv,
+  fetchFromGitLab,
+  meson,
+  ninja,
+  pkg-config,
+  gst_all_1,
+  wrapGAppsHook4,
+  appstream-glib,
+  gtk4,
+  libadwaita,
+  desktop-file-utils,
+  libGL,
 }:
 
 stdenv.mkDerivation rec {
   pname = "livi";
-  version = "0.1.0";
+  version = "0.3.1";
 
   src = fetchFromGitLab {
     owner = "guidog";
     repo = "livi";
     domain = "gitlab.gnome.org";
     rev = "v${version}";
-    sha256 = "sha256-FJ43BDRsZUFuRrNFWuEJ/nSO+suWad2QvqhwzuXWBtY=";
+    hash = "sha256-cPnmKepXPeA3h0VYHypEPHAOclhVseokL1NsCKxGJ78=";
   };
   nativeBuildInputs = [
     meson
@@ -46,6 +47,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     homepage = "https://gitlab.gnome.org/guidog/livi";
+    changelog = "https://gitlab.gnome.org/guidog/livi/-/blob/v${version}/NEWS?ref_type=tags";
     description = "Small video player targeting mobile devices (also named μPlayer)";
     license = licenses.gpl3Plus;
     platforms = platforms.linux;

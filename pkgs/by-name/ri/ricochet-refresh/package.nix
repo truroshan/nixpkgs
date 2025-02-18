@@ -1,51 +1,56 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, qt5
-, openssl
-, protobuf
-, pkg-config
-, cmake
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  qt5,
+  openssl,
+  protobuf,
+  pkg-config,
+  cmake,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "ricochet-refresh";
-  version = "3.0.24";
+  version = "3.0.30";
 
   src = fetchFromGitHub {
     owner = "blueprint-freespeech";
     repo = "ricochet-refresh";
     rev = "v${finalAttrs.version}-release";
     fetchSubmodules = true;
-    hash = "sha256-xz1cyNQgmXUIZc56OHwWZCGVNpp7CFFyCd0EvAas4zw=";
+    hash = "sha256-8KYjK3pW6xVTGPtHW0SkIpVqKokF2S748xtuI0zfp0E=";
   };
 
   sourceRoot = "${finalAttrs.src.name}/src";
 
   strictDeps = true;
 
-  buildInputs = (with qt5; [
-    qtbase
-    qttools
-    qtmultimedia
-    qtquickcontrols2
-    qtwayland
-  ]) ++ [
-    openssl
-    protobuf
-  ];
+  buildInputs =
+    (with qt5; [
+      qtbase
+      qttools
+      qtmultimedia
+      qtquickcontrols2
+      qtwayland
+    ])
+    ++ [
+      openssl
+      protobuf
+    ];
 
   nativeBuildInputs = [
     pkg-config
+    protobuf
     cmake
     qt5.wrapQtAppsHook
   ];
 
   enableParallelBuilding = true;
 
+  cmakeBuildType = "MinSizeRel";
+
   # https://github.com/blueprint-freespeech/ricochet-refresh/blob/main/BUILDING.md
   cmakeFlags = [
-    (lib.cmakeFeature "CMAKE_BUILD_TYPE" "MinSizeRel")
     (lib.cmakeBool "RICOCHET_REFRESH_INSTALL_DESKTOP" true)
     (lib.cmakeBool "USE_SUBMODULE_FMT" true)
   ];

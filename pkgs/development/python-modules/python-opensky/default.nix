@@ -15,7 +15,7 @@
 
 buildPythonPackage rec {
   pname = "python-opensky";
-  version = "1.0.0";
+  version = "1.0.1";
   pyproject = true;
 
   disabled = pythonOlder "3.11";
@@ -23,8 +23,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "joostlek";
     repo = "python-opensky";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-Ia6/Lr/uNuF1u0s4g0tpYaW+hKeLbUKxYC/O+ZBqiXI=";
+    tag = "v${version}";
+    hash = "sha256-V6iRwWzCnPCvu8eks2sHPYrX3OmaFnNj+i57kQJKYm0=";
   };
 
   postPatch = ''

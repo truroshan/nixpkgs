@@ -16,7 +16,6 @@
   tensorflow,
   treeo,
   torchmetrics,
-  pythonRelaxDepsHook,
   torch,
 }:
 
@@ -28,7 +27,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "cgarciae";
     repo = pname;
-    rev = "refs/tags/${version}";
+    tag = version;
     hash = "sha256-ObOnbtAT4SlrwOms1jtn7/XKZorGISGY6VuhQlC3DaQ=";
   };
 
@@ -44,7 +43,6 @@ buildPythonPackage rec {
 
   nativeBuildInputs = [
     poetry-core
-    pythonRelaxDepsHook
   ];
 
   buildInputs = [ jaxlib ];

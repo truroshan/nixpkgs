@@ -2,8 +2,6 @@
   lib,
   buildPythonPackage,
   fetchFromGitHub,
-  pythonRelaxDepsHook,
-  pytest-runner,
   # runtime dependencies
   numpy,
   onnx,
@@ -16,7 +14,7 @@
   pytestCheckHook,
   graphviz,
   parameterized,
-  pytest-cov,
+  pytest-cov-stub,
   pyyaml,
   timeout-decorator,
   onnxruntime,
@@ -31,14 +29,14 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "onnx";
     repo = "tensorflow-onnx";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-qtRzckw/KHWm3gjFwF+cPuBhGbfktjhYIwImwHn2CFk=";
   };
 
-  nativeBuildInputs = [
-    pythonRelaxDepsHook
-    pytest-runner
-  ];
+  postPatch = ''
+    substituteInPlace setup.py \
+      --replace-fail "'pytest-runner'" ""
+  '';
 
   pythonRelaxDeps = [ "flatbuffers" ];
 
@@ -59,7 +57,7 @@ buildPythonPackage rec {
     pytestCheckHook
     graphviz
     parameterized
-    pytest-cov
+    pytest-cov-stub
     pyyaml
     timeout-decorator
     keras

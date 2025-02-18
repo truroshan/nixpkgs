@@ -11,7 +11,7 @@
 
 buildPythonPackage rec {
   pname = "upb-lib";
-  version = "0.5.6";
+  version = "0.5.9";
   pyproject = true;
 
   disabled = pythonOlder "3.11";
@@ -19,8 +19,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "gwww";
     repo = "upb-lib";
-    rev = "refs/tags/${version}";
-    hash = "sha256-e8LYywKA5lNZ4UYFZTwcfePDWB4cTNz38Tiy4xzOxOs=";
+    tag = version;
+    hash = "sha256-GnNzKU4mqBu2pUOju+4+HMLsTupd8s+nAAieixkBCDk=";
   };
 
   build-system = [ poetry-core ];

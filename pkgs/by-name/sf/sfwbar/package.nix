@@ -13,9 +13,11 @@
   libxkbcommon,
   alsa-lib,
   makeWrapper,
+  docutils,
+  wayland-scanner,
 }:
 let
-  version = "1.0_beta14";
+  version = "1.0_beta16";
 in
 stdenv.mkDerivation {
   pname = "sfwbar";
@@ -25,7 +27,7 @@ stdenv.mkDerivation {
     owner = "LBCrion";
     repo = "sfwbar";
     rev = "v${version}";
-    hash = "sha256-4brP1SXaWq/L0D87rvlrWhLU1oFPSwNNxBSzRr4jsTM=";
+    hash = "sha256-jMEbw3Xla2cod/oKFQ4bD3sTHi7DZ0deG0H0Yt0Y7ck=";
   };
 
   buildInputs = [
@@ -36,6 +38,7 @@ stdenv.mkDerivation {
     libmpdclient
     libxkbcommon
     alsa-lib
+    docutils # for rst2man
   ];
 
   nativeBuildInputs = [
@@ -43,6 +46,7 @@ stdenv.mkDerivation {
     ninja
     pkg-config
     makeWrapper
+    wayland-scanner
   ];
 
   postFixup = ''

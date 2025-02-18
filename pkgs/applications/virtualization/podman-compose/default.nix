@@ -1,23 +1,33 @@
-{ lib, buildPythonApplication, fetchFromGitHub, python-dotenv, pyyaml, setuptools, pipBuildHook, pypaBuildHook }:
+{
+  lib,
+  buildPythonApplication,
+  fetchFromGitHub,
+  python-dotenv,
+  pyyaml,
+  setuptools,
+  pypaBuildHook,
+}:
 
 buildPythonApplication rec {
-  version = "1.1.0";
+  version = "1.3.0";
   pname = "podman-compose";
   pyproject = true;
 
   src = fetchFromGitHub {
     repo = "podman-compose";
     owner = "containers";
-    rev = "v${version}";
-    sha256 = "sha256-uNgzdLrnDIABtt0L2pvsil14esRzl0XcWohgf7Oksr8=";
+    tag = "v${version}";
+    hash = "sha256-0k+vJwWYEXQ6zxkcvjxBv9cq8nIBS15F7ul5VwqYtys=";
   };
-
 
   build-system = [
     setuptools
   ];
 
-  dependencies = [ python-dotenv pyyaml ];
+  dependencies = [
+    python-dotenv
+    pyyaml
+  ];
   propagatedBuildInputs = [ pypaBuildHook ];
 
   meta = {

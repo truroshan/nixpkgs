@@ -6,6 +6,7 @@
 , terraform
 , stdenvNoCC
 , unzip
+, nixosTests
 }:
 
 let
@@ -13,21 +14,21 @@ let
 
   channels = {
     stable = {
-      version = "2.11.3";
+      version = "2.18.5";
       hash = {
-        x86_64-linux = "sha256-TaEl7J/Zo/K+j8EGpIauQYR5UucALviuSk0/jgiK83U=";
-        x86_64-darwin = "sha256-qM2YTvHGeAi1F4V79YoDdsp1NbHFah8L0bppUhmzZyY=";
-        aarch64-linux = "sha256-gLaxi3h2JrnVecS/k3YHuWM1R1oLXKg5R1aeh3GVREY=";
-        aarch64-darwin = "sha256-SochFDBspdKfw1xd2FiyI9bp2Y3SbdgbGtzwUDyMsLE=";
+        x86_64-linux = "sha256-thoe1TYT4b2tm1t9ZTGGMl9AzW/zP74LavIYweUs8Yw=";
+        x86_64-darwin = "sha256-HOHNzUKSt1ZO2onmydeHDeYdekwxfyy19Ps4q8xdurI=";
+        aarch64-linux = "sha256-dU6XdW/uOHMgSTnokvw9bDGULQM4urm8Szc7RRUEEcs=";
+        aarch64-darwin = "sha256-u1/yWTZv0NgviED6+VywONPv4CJsgWBpXjstyL1dBg4=";
       };
     };
     mainline = {
-      version = "2.12.2";
+      version = "2.18.5";
       hash = {
-        x86_64-linux = "sha256-UJnJ64zwuDKzc/yKLQnj//3tXZ/GJpzUUw8KoH3Uf14=";
-        x86_64-darwin = "sha256-d+BWUEMvta7ZkCOqMTafuR5suIDWPauwTzGOpPDF+ck=";
-        aarch64-linux = "sha256-ayZZhqL3YLjaUDmHOiY4yXg/+tGR7HpLcwojuagqkKg=";
-        aarch64-darwin = "sha256-EYB7YLScshBInLBOXVfYs+f+OWC7OF9tEmhhG25pPSo=";
+        x86_64-linux = "sha256-thoe1TYT4b2tm1t9ZTGGMl9AzW/zP74LavIYweUs8Yw=";
+        x86_64-darwin = "sha256-HOHNzUKSt1ZO2onmydeHDeYdekwxfyy19Ps4q8xdurI=";
+        aarch64-linux = "sha256-dU6XdW/uOHMgSTnokvw9bDGULQM4urm8Szc7RRUEEcs=";
+        aarch64-darwin = "sha256-u1/yWTZv0NgviED6+VywONPv4CJsgWBpXjstyL1dBg4=";
       };
     };
   };
@@ -83,11 +84,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   '';
 
   postInstall = ''
-    installShellCompletion --cmd coder \
-      --bash <($out/bin/coder completion bash) \
-      --fish <($out/bin/coder completion fish) \
-      --zsh <($out/bin/coder completion zsh)
-
     wrapProgram $out/bin/coder \
       --prefix PATH : ${lib.makeBinPath [ terraform ]}
   '';
@@ -105,5 +101,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   passthru = {
     updateScript = ./update.sh;
+    tests = {
+      inherit (nixosTests) coder;
+    };
   };
 })

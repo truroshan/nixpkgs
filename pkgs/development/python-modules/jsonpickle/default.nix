@@ -10,19 +10,20 @@
 
   # tests
   pytestCheckHook,
+  simplejson,
 }:
 
 buildPythonPackage rec {
   pname = "jsonpickle";
-  version = "3.0.4";
+  version = "4.0.1";
   pyproject = true;
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-obFMjWIhzY85TyqX5zXqHX7ckn+9E1sm8vhwBlfIxis=";
+    hash = "sha256-tTNhRNkClYuSywi8Hna/pHGZuK/UVDA2k4lN79L6UMU=";
   };
 
-  nativeBuildInputs = [
+  build-system = [
     setuptools
     setuptools-scm
   ];
@@ -31,7 +32,10 @@ buildPythonPackage rec {
     rm pytest.ini
   '';
 
-  nativeCheckInputs = [ pytestCheckHook ];
+  nativeCheckInputs = [
+    pytestCheckHook
+    simplejson
+  ];
 
   disabledTests = lib.optionals (pythonAtLeast "3.12") [
     # imports distutils

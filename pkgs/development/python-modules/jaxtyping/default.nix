@@ -1,13 +1,15 @@
 {
   lib,
   buildPythonPackage,
-  pythonOlder,
   fetchFromGitHub,
+
+  # build-system
   hatchling,
-  pythonRelaxDepsHook,
-  numpy,
-  typeguard,
-  typing-extensions,
+
+  # dependencies
+  wadler-lindig,
+
+  # tests
   cloudpickle,
   equinox,
   ipython,
@@ -21,30 +23,23 @@
 let
   self = buildPythonPackage rec {
     pname = "jaxtyping";
-    version = "0.2.28";
+    version = "0.2.38";
     pyproject = true;
-
-    disabled = pythonOlder "3.9";
 
     src = fetchFromGitHub {
       owner = "google";
       repo = "jaxtyping";
-      rev = "refs/tags/v${version}";
-      hash = "sha256-xDFrgPecUIfCACg/xkMQ8G1+6hNiUUDg9eCZKNpNfzs=";
+      tag = "v${version}";
+      hash = "sha256-AK0c4HCM8ExDBdnQ0y6qSNTHTF5rD6kC+OjiJtW5Mkg=";
     };
 
-    nativeBuildInputs = [
-      hatchling
-      pythonRelaxDepsHook
+    build-system = [ hatchling ];
+
+    dependencies = [
+      wadler-lindig
     ];
 
-    propagatedBuildInputs = [
-      numpy
-      typeguard
-      typing-extensions
-    ];
-
-    pythonRelaxDeps = [ "typeguard" ];
+    pythonImportsCheck = [ "jaxtyping" ];
 
     nativeCheckInputs = [
       cloudpickle
@@ -68,13 +63,12 @@ let
       };
     };
 
-    pythonImportsCheck = [ "jaxtyping" ];
-
-    meta = with lib; {
+    meta = {
       description = "Type annotations and runtime checking for JAX arrays and PyTrees";
       homepage = "https://github.com/google/jaxtyping";
-      license = licenses.mit;
-      maintainers = with maintainers; [ GaetanLepage ];
+      changelog = "https://github.com/patrick-kidger/jaxtyping/releases/tag/v${version}";
+      license = lib.licenses.mit;
+      maintainers = with lib.maintainers; [ GaetanLepage ];
     };
   };
 in

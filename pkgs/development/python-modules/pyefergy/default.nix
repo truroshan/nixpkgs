@@ -5,7 +5,6 @@
   fetchFromGitHub,
   poetry-core,
   poetry-dynamic-versioning,
-  pythonRelaxDepsHook,
   iso4217,
   pythonOlder,
   pytz,
@@ -21,14 +20,13 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "tkdrob";
     repo = "pyefergy";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-4M3r/+C42X95/7BGZAJbkXKKFEkGzLlvX0Ynv+eL8qc=";
   };
 
   build-system = [
     poetry-core
     poetry-dynamic-versioning
-    pythonRelaxDepsHook
   ];
 
   pythonRemoveDeps = [

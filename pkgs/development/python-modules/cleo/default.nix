@@ -6,7 +6,6 @@
   poetry-core,
   pytest-mock,
   pytestCheckHook,
-  pythonRelaxDepsHook,
   rapidfuzz,
 }:
 
@@ -18,13 +17,12 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "python-poetry";
     repo = pname;
-    rev = "refs/tags/${version}";
+    tag = version;
     hash = "sha256-reo/7aPFU5uvZ1YPRTJDRmcMSMFru8e5ss5YmjSe3QU=";
   };
 
   nativeBuildInputs = [
     poetry-core
-    pythonRelaxDepsHook
   ];
 
   pythonRelaxDeps = [ "rapidfuzz" ];

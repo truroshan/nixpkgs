@@ -6,18 +6,18 @@
 , php
 }:
 
-php.buildComposerProject (finalAttrs: {
+php.buildComposerProject2 (finalAttrs: {
   pname = "snipe-it";
-  version = "7.0.4";
+  version = "7.1.16";
 
   src = fetchFromGitHub {
     owner = "snipe";
     repo = "snipe-it";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-yu0f2NyHj+5UR1YKD+eZIksBWtykTN6/Pcam1pfyQTM=";
+    hash = "sha256-TGa/zI1hpF17EdyohGo4Lu+yAiF2gp6ZQACk7Tqq880=";
   };
 
-  vendorHash = "sha256-+h4jj8VBDQ76V3udrr4e54jhRwjsbxqgAtntILCAHy8=";
+  vendorHash = "sha256-jINYWbQ2jdYbG9YdP2elqm9Zk5X8/ksUZqLHkH/l6Gw=";
 
   postInstall = ''
     snipe_it_out="$out/share/php/snipe-it"
@@ -36,7 +36,7 @@ php.buildComposerProject (finalAttrs: {
 
     chmod +x $snipe_it_out/artisan
 
-    substituteInPlace $snipe_it_out/config/database.php --replace "env('DB_DUMP_PATH', '/usr/local/bin')" "env('DB_DUMP_PATH', '${mariadb}/bin')"
+    substituteInPlace $snipe_it_out/config/database.php --replace-fail "env('DB_DUMP_PATH', '/usr/local/bin')" "env('DB_DUMP_PATH', '${mariadb}/bin')"
   '';
 
   passthru = {

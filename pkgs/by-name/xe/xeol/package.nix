@@ -6,21 +6,22 @@
 
 buildGoModule rec {
   pname = "xeol";
-  version = "0.9.15";
+  version = "0.10.4";
 
   src = fetchFromGitHub {
     owner = "xeol-io";
     repo = "xeol";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-/DWBDc8m5XYM5UBX5/GWuPRR3YktRar/LbENx2d5bc4=";
+    tag = "v${version}";
+    hash = "sha256-zm8PIYWFLEiWuZGt5Fev35d8EYOfzduIXX6SmJZ27o0=";
   };
 
-  vendorHash = "sha256-9zDzwiVEVsfgVzSrouNtLYpjumoWGlfSDpGWbj+zCGQ=";
+  vendorHash = "sha256-hPWjXTxk/jRkzvLYNgVlgj0hjzfikwel1bxSqWquVhk=";
+
+  proxyVendor = true;
 
   subPackages = [ "cmd/xeol/" ];
 
   ldflags = [
-    "-w"
     "-s"
     "-X=main.version=${version}"
     "-X=main.gitCommit=${src.rev}"
@@ -35,6 +36,5 @@ buildGoModule rec {
     license = licenses.asl20;
     maintainers = with maintainers; [ fab ];
     mainProgram = "xeol";
-    platforms = platforms.linux;
   };
 }

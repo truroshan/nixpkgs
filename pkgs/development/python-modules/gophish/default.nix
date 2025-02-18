@@ -10,7 +10,6 @@
   pyparsing,
   python-dateutil,
   pythonOlder,
-  pythonRelaxDepsHook,
   requests,
   setuptools,
   six,
@@ -27,15 +26,13 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "gophish";
     repo = "api-client-python";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-ITwwU/Xixyi9JSWbYf606HB7S5E4jiI0lEYcOdNg3mo=";
   };
 
   pythonRelaxDeps = true;
 
   build-system = [ setuptools ];
-
-  nativeBuildInputs = [ pythonRelaxDepsHook ];
 
   dependencies = [
     appdirs

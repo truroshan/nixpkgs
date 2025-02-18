@@ -4,19 +4,22 @@
   fetchPypi,
   pytestCheckHook,
   pythonOlder,
+  setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "phonenumbers";
-  version = "8.13.34";
-  format = "setuptools";
+  version = "8.13.53";
+  pyproject = true;
 
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-fCZ2vge30PdEEeJ14GYDgKDsPuDTWfBw1xlCS9LF9i4=";
+    hash = "sha256-tzCPIYN976VntPlhkltsZS3VFI8+D629FYoQdYzGPZE=";
   };
+
+  build-system = [ setuptools ];
 
   nativeCheckInputs = [ pytestCheckHook ];
 

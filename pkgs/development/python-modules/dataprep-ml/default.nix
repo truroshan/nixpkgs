@@ -12,7 +12,6 @@
   pydateinfer,
   python-dateutil,
   pythonOlder,
-  pythonRelaxDepsHook,
   scipy,
   symlinkJoin,
   type-infer,
@@ -40,11 +39,13 @@ buildPythonPackage rec {
     hash = "sha256-pZhHlNcQJLBww7ur2Z6Yb2IdbRsBtjzQAzfa4UzGKt4=";
   };
 
-  pythonRelaxDeps = [ "pydantic" ];
+  pythonRelaxDeps = [
+    "pydantic"
+    "numpy"
+  ];
 
   nativeBuildInputs = [
     poetry-core
-    pythonRelaxDepsHook
   ];
 
   propagatedBuildInputs = [

@@ -3,9 +3,9 @@
   buildPythonPackage,
   fetchPypi,
   pythonOlder,
-  pythonRelaxDepsHook,
   installShellFiles,
   docutils,
+  setuptools,
   ansible,
   cryptography,
   importlib-resources,
@@ -31,11 +31,13 @@
 
 buildPythonPackage rec {
   pname = "ansible-core";
-  version = "2.16.5";
+  version = "2.18.1";
+  pyproject = true;
 
   src = fetchPypi {
-    inherit pname version;
-    hash = "sha256-zdKbDsPyDDVlc1Wi9qnB0M8RMdqZzJpKNAGAGwqzbW0=";
+    pname = "ansible_core";
+    inherit version;
+    hash = "sha256-FMrB+Su9rogcsGFu3esXkl6MtQfkhgh5deckUz2d508=";
   };
 
   # ansible_connection is already wrapped, so don't pass it through
@@ -46,14 +48,25 @@ buildPythonPackage rec {
       --replace "[python," "["
 
     patchShebangs --build packaging/cli-doc/build.py
+
+    SETUPTOOLS_PATTERN='"setuptools[0-9 <>=.,]+"'
+    PYPROJECT=$(cat pyproject.toml)
+    if [[ "$PYPROJECT" =~ $SETUPTOOLS_PATTERN ]]; then
+      echo "setuptools replace: ''${BASH_REMATCH[0]}"
+      echo "''${PYPROJECT//''${BASH_REMATCH[0]}/'"setuptools"'}" > pyproject.toml
+    else
+      exit 2
+    fi
   '';
 
   nativeBuildInputs = [
     installShellFiles
     docutils
-  ] ++ lib.optionals (pythonOlder "3.10") [ pythonRelaxDepsHook ];
+  ];
 
-  propagatedBuildInputs =
+  build-system = [ setuptools ];
+
+  dependencies =
     [
       # depend on ansible instead of the other way around
       ansible
@@ -96,6 +109,6 @@ buildPythonPackage rec {
     description = "Radically simple IT automation";
     homepage = "https://www.ansible.com";
     license = licenses.gpl3Plus;
-    maintainers = with maintainers; [ ];
+    maintainers = [ ];
   };
 }

@@ -7,9 +7,9 @@
   hatchling,
   headerparser,
   jsonschema,
-  pythonRelaxDepsHook,
   packaging,
   pytestCheckHook,
+  pytest-cov-stub,
   pythonOlder,
   readme-renderer,
   setuptools,
@@ -18,7 +18,7 @@
 
 buildPythonPackage rec {
   pname = "wheel-inspect";
-  version = "1.7.1";
+  version = "1.7.2";
   pyproject = true;
 
   disabled = pythonOlder "3.6";
@@ -26,14 +26,9 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "jwodder";
     repo = "wheel-inspect";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-pB9Rh+A7GlxnYuka2mTSBoxpoyYCzoaMPVgsHDlpos0=";
+    tag = "v${version}";
+    hash = "sha256-Mdw9IlY/2qDlb5FumNH+VHmg7vrUzo3vn+03QsUGgo8=";
   };
-
-  postPatch = ''
-    substituteInPlace tox.ini \
-      --replace-fail "--cov=wheel_inspect --no-cov-on-fail" ""
-  '';
 
   pythonRelaxDeps = [
     "entry-points-txt"
@@ -42,7 +37,6 @@ buildPythonPackage rec {
 
   nativeBuildInputs = [
     hatchling
-    pythonRelaxDepsHook
   ];
 
   propagatedBuildInputs = [
@@ -54,7 +48,10 @@ buildPythonPackage rec {
     wheel-filename
   ];
 
-  nativeCheckInputs = [ pytestCheckHook ];
+  nativeCheckInputs = [
+    pytestCheckHook
+    pytest-cov-stub
+  ];
 
   checkInputs = [
     setuptools

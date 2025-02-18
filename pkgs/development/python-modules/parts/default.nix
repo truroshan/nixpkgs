@@ -9,14 +9,14 @@
 
 buildPythonPackage rec {
   pname = "parts";
-  version = "1.7.0";
+  version = "2.1.0";
   format = "pyproject";
 
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-TbcFgWKKgHXFyi1NqwVy1ITGHESb4ZusivOpFWazN1s=";
+    hash = "sha256-zauHOv8pM47CVIQIo8aMMPZJgwIowgbVLvfFWzIqHoc=";
   };
 
   nativeBuildInputs = [

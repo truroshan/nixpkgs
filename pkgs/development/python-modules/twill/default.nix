@@ -2,33 +2,31 @@
   lib,
   buildPythonPackage,
   fetchPypi,
+  flask,
   httpx,
   lxml,
   pyparsing,
   pytestCheckHook,
   pythonOlder,
-  pythonRelaxDepsHook,
   quixote,
   setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "twill";
-  version = "3.2.4";
+  version = "3.3";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-YlZKvOGxLWwGh+MqCXf8tfruxLK60H73k1VQhGOSTc8=";
+    hash = "sha256-IprmAuqwzMwB6ryw0GsdRfeFK6ABP4nBM6VdlfgGNoQ=";
   };
 
   pythonRelaxDeps = [ "lxml" ];
 
   build-system = [ setuptools ];
-
-  nativeBuildInputs = [ pythonRelaxDepsHook ];
 
   dependencies = [
     httpx
@@ -37,6 +35,7 @@ buildPythonPackage rec {
   ];
 
   nativeCheckInputs = [
+    flask
     pytestCheckHook
     quixote
   ];

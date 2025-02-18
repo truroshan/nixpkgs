@@ -4,12 +4,12 @@
   fetchFromGitHub,
   pythonOlder,
   setuptools,
-  websockets,
+  aiohttp,
 }:
 
 buildPythonPackage rec {
   pname = "aiowebostv";
-  version = "0.4.0";
+  version = "0.6.2";
   pyproject = true;
 
   disabled = pythonOlder "3.9";
@@ -17,13 +17,13 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "home-assistant-libs";
     repo = "aiowebostv";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-VUznW+rMCZF1LbrQmEaOgdcX3YCm6Tf7yWlB8KNrjxU=";
+    tag = "v${version}";
+    hash = "sha256-H5ZhG69F5w1fZBepxqWGo29XnK3Tn6dgota64k2GJbw=";
   };
 
-  nativeBuildInputs = [ setuptools ];
+  build-system = [ setuptools ];
 
-  propagatedBuildInputs = [ websockets ];
+  dependencies = [ aiohttp ];
 
   # Module doesn't have tests
   doCheck = false;

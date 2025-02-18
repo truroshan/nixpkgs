@@ -4,9 +4,9 @@
   fetchFromGitHub,
   nix-update-script,
   platformdirs,
-  pydantic_1,
+  jinja2,
+  overrides,
   pyyaml,
-  setuptools,
   setuptools-scm,
   pytest-check,
   pytest-mock,
@@ -15,33 +15,28 @@
 
 buildPythonPackage rec {
   pname = "craft-cli";
-  version = "2.5.1";
+  version = "2.15.0";
 
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "canonical";
     repo = "craft-cli";
-    rev = "refs/tags/${version}";
-    hash = "sha256-yEKF04OPu4paRrghAP78r9hu6cqkUy6z/V7cHNys82I=";
+    tag = version;
+    hash = "sha256-L8hOQJhjVAMo/WxEHHEk2QorlSdDFMGdcL/Q3Pv6mT4=";
   };
 
   postPatch = ''
-    substituteInPlace craft_cli/__init__.py \
-      --replace-fail "dev" "${version}"
-
     substituteInPlace pyproject.toml \
-      --replace-fail "setuptools==67.7.2" "setuptools"
+      --replace-fail "setuptools==75.2.0" "setuptools"
   '';
 
-  nativeBuildInputs = [
-    setuptools
-    setuptools-scm
-  ];
+  build-system = [ setuptools-scm ];
 
-  propagatedBuildInputs = [
+  dependencies = [
+    jinja2
+    overrides
     platformdirs
-    pydantic_1
     pyyaml
   ];
 

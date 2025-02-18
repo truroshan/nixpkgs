@@ -1,29 +1,37 @@
 {
   lib,
-  aiohttp,
-  anthropic,
   buildPythonPackage,
-  docstring-parser,
   fetchFromGitHub,
-  openai,
-  poetry-core,
-  pydantic,
-  pytest-examples,
-  pytest-asyncio,
-  pytestCheckHook,
-  fastapi,
-  diskcache,
-  redis,
   pythonOlder,
-  pythonRelaxDepsHook,
+
+  # build-system
+  hatchling,
+
+  # dependencies
+  aiohttp,
+  docstring-parser,
+  jiter,
+  openai,
+  pydantic,
   rich,
   tenacity,
   typer,
+
+  # tests
+  anthropic,
+  diskcache,
+  fastapi,
+  google-generativeai,
+  jinja2,
+  pytest-asyncio,
+  pytestCheckHook,
+  python-dotenv,
+  redis,
 }:
 
 buildPythonPackage rec {
   pname = "instructor";
-  version = "1.2.3";
+  version = "1.7.2";
   pyproject = true;
 
   disabled = pythonOlder "3.9";
@@ -31,22 +39,16 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "jxnl";
     repo = "instructor";
-    rev = "refs/tags/${version}";
-    hash = "sha256-LmorlFKIG7iPAK4pDbQqjxjiwB1md3u52B4u5WlqqTk=";
+    tag = version;
+    hash = "sha256-65qNalbcg9MR5QhUJeutp3Y2Uox7cKX+ffo21LACeXE=";
   };
 
-  pythonRelaxDeps = [
-    "docstring-parser"
-    "pydantic"
-  ];
-
-  build-system = [ poetry-core ];
-
-  nativeBuildInputs = [ pythonRelaxDepsHook ];
+  build-system = [ hatchling ];
 
   dependencies = [
     aiohttp
     docstring-parser
+    jiter
     openai
     pydantic
     rich
@@ -56,35 +58,44 @@ buildPythonPackage rec {
 
   nativeCheckInputs = [
     anthropic
-    fastapi
-    redis
     diskcache
+    fastapi
+    google-generativeai
+    jinja2
     pytest-asyncio
-    pytest-examples
     pytestCheckHook
+    python-dotenv
+    redis
   ];
 
   pythonImportsCheck = [ "instructor" ];
 
   disabledTests = [
     # Tests require OpenAI API key
-    "test_partial"
     "successfully"
+    "test_mode_functions_deprecation_warning"
+    "test_partial"
+
+    # Requires unpackaged `vertexai`
+    "test_json_preserves_description_of_non_english_characters_in_json_mode"
+
+    # Checks magic values and this fails on Python 3.13
+    "test_raw_base64_autodetect_jpeg"
+    "test_raw_base64_autodetect_png"
   ];
 
   disabledTestPaths = [
     # Tests require OpenAI API key
     "tests/test_distil.py"
-    "tests/test_new_client.py"
     "tests/llm/"
   ];
 
-  meta = with lib; {
+  meta = {
     description = "Structured outputs for llm";
     homepage = "https://github.com/jxnl/instructor";
-    changelog = "https://github.com/jxnl/instructor/releases/tag/v${version}";
-    license = licenses.mit;
-    maintainers = with maintainers; [ mic92 ];
+    changelog = "https://github.com/jxnl/instructor/releases/tag/${version}";
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ mic92 ];
     mainProgram = "instructor";
   };
 }

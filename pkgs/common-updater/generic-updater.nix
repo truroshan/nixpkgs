@@ -1,22 +1,25 @@
-{ lib
-, stdenv
-, common-updater-scripts
-, coreutils
-, gnugrep
-, gnused
-, nix
-, writeScript
+{
+  lib,
+  stdenv,
+  common-updater-scripts,
+  coreutils,
+  gnugrep,
+  gnused,
+  nix,
+  writeScript,
 }:
 
-{ name ? null
-, pname ? null
-, version ? null
-, attrPath ? null
-, versionLister
-, ignoredVersions ? ""
-, rev-prefix ? ""
-, odd-unstable ? false
-, patchlevel-unstable ? false
+{
+  name ? null,
+  pname ? null,
+  version ? null,
+  attrPath ? null,
+  versionLister,
+  allowedVersions ? "",
+  ignoredVersions ? "",
+  rev-prefix ? "",
+  odd-unstable ? false,
+  patchlevel-unstable ? false,
 }:
 
 let
@@ -37,10 +40,11 @@ let
     version="$3"
     attr_path="$4"
     version_lister="$5"
-    ignored_versions="$6"
-    rev_prefix="$7"
-    odd_unstable="$8"
-    patchlevel_unstable="$9"
+    allowed_versions="$6"
+    ignored_versions="$7"
+    rev_prefix="$8"
+    odd_unstable="$9"
+    patchlevel_unstable="''${10}"
 
     [[ -n "$name" ]] || name="$UPDATE_NIX_NAME"
     [[ -n "$pname" ]] || pname="$UPDATE_NIX_PNAME"
@@ -52,7 +56,7 @@ let
 
     function version_is_ignored() {
       local tag="$1"
-      [ -n "$ignored_versions" ] && ${grep} -E "$ignored_versions" <<< "$tag"
+      [ -n "$ignored_versions" ] && ${grep} -q -E -e "$ignored_versions" <<< "$tag"
     }
 
     function version_is_unstable() {
@@ -86,6 +90,9 @@ let
       tags=$(echo "$tags" | ${sed} -e "s,^$rev_prefix,,")
     fi
     tags=$(echo "$tags" | ${grep} "^[0-9]")
+    if [ -n "$allowed_versions" ]; then
+      tags=$(echo "$tags" | ${grep} -E -e "$allowed_versions")
+    fi
 
     # sort the tags in decreasing order
     tags=$(echo "$tags" | ${coreutils}/bin/sort --reverse --version-sort)
@@ -125,9 +132,22 @@ let
     echo "" >> ${fileForGitCommands}
   '';
 
-in {
+in
+{
   name = "generic-update-script";
-  command = [ updateScript name pname version attrPath versionLister ignoredVersions rev-prefix odd-unstable patchlevel-unstable ];
+  command = [
+    updateScript
+    name
+    pname
+    version
+    attrPath
+    versionLister
+    allowedVersions
+    ignoredVersions
+    rev-prefix
+    odd-unstable
+    patchlevel-unstable
+  ];
   supportedFeatures = [
     # Stdout must contain output according to the updateScript commit protocol when the update script finishes with a non-zero exit code.
     "commit"

@@ -9,21 +9,21 @@
 
 buildPythonPackage rec {
   pname = "python-docs-theme";
-  version = "2024.4";
+  version = "2025.2";
   pyproject = true;
 
-  disabled = pythonOlder "3.8";
+  disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "python";
     repo = "python-docs-theme";
-    rev = "refs/tags/${version}";
-    hash = "sha256-x1r71/Urpqf0FtL2Bao5SgsRQfmwym34F7qYzxFkT5c=";
+    tag = version;
+    hash = "sha256-+QOtlgWGPcuKZOfuE0l08GUetR0DZvMzsk8Xl8KaZcQ=";
   };
 
-  nativeBuildInputs = [ flit-core ];
+  build-system = [ flit-core ];
 
-  propagatedBuildInputs = [ sphinx ];
+  dependencies = [ sphinx ];
 
   pythonImportsCheck = [ "python_docs_theme" ];
 

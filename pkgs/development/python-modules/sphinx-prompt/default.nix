@@ -2,7 +2,6 @@
   lib,
   buildPythonPackage,
   fetchFromGitHub,
-  pythonRelaxDepsHook,
 
   # build-system
   poetry-core,
@@ -25,7 +24,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "sbrunner";
     repo = "sphinx-prompt";
-    rev = "refs/tags/${version}";
+    tag = version;
     hash = "sha256-/XxUSsW8Bowks7P+d6iTlklyMIfTb2otXva/VtRVAkM=";
   };
 
@@ -37,7 +36,6 @@ buildPythonPackage rec {
   nativeBuildInputs = [
     poetry-core
     poetry-dynamic-versioning
-    pythonRelaxDepsHook
   ];
 
   pythonRelaxDeps = [

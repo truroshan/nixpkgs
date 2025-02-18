@@ -11,7 +11,6 @@
   motmetrics,
   opencv4,
   pytestCheckHook,
-  pythonRelaxDepsHook,
 }:
 
 buildPythonPackage rec {
@@ -26,14 +25,14 @@ buildPythonPackage rec {
     hash = "sha256-aKB5TYSLW7FOXIy9u2hK7px6eEmIQdKPrhChKaU1uYs=";
   };
 
-  nativeBuildInputs = [
-    poetry-core
-    pythonRelaxDepsHook
+  build-system = [ poetry-core ];
+
+  pythonRelaxDeps = [
+    "numpy"
+    "rich"
   ];
 
-  pythonRelaxDeps = [ "rich" ];
-
-  propagatedBuildInputs = [
+  dependencies = [
     filterpy
     importlib-metadata
     numpy
@@ -41,7 +40,7 @@ buildPythonPackage rec {
     scipy
   ];
 
-  passthru.optional-dependencies = {
+  optional-dependencies = {
     metrics = [ motmetrics ];
     video = [ opencv4 ];
   };

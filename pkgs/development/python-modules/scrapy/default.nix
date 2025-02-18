@@ -19,6 +19,7 @@
   protego,
   pydispatcher,
   pyopenssl,
+  pytest-xdist,
   pytestCheckHook,
   pythonOlder,
   queuelib,
@@ -35,7 +36,7 @@
 
 buildPythonPackage rec {
   pname = "scrapy";
-  version = "2.11.2";
+  version = "2.12.0";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -43,10 +44,13 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "scrapy";
     repo = "scrapy";
-    rev = "refs/tags/${version}";
-    hash = "sha256-EaO1kQ3VSTwEW+r0kSKycOxHNTPwwCVjch1ZBrTU0qQ=";
+    tag = version;
+    hash = "sha256-o3+57+bZRohgrld2EuoQDU2LioJu0jmaC/RPREvI1t8=";
   };
 
+  pythonRelaxDeps = [
+    "defusedxml"
+  ];
 
   nativeBuildInputs = [
     installShellFiles
@@ -78,6 +82,7 @@ buildPythonPackage rec {
     glibcLocales
     jmespath
     pexpect
+    pytest-xdist
     pytestCheckHook
     sybil
     testfixtures
@@ -112,7 +117,7 @@ buildPythonPackage rec {
       # Test fails on Hydra
       "test_start_requests_laziness"
     ]
-    ++ lib.optionals stdenv.isDarwin [
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
       "test_xmliter_encoding"
       "test_download"
       "test_reactor_default_twisted_reactor_select"
@@ -143,7 +148,7 @@ buildPythonPackage rec {
       range of purposes, from data mining to monitoring and automated testing.
     '';
     homepage = "https://scrapy.org/";
-    changelog = "https://github.com/scrapy/scrapy/raw/${version}/docs/news.rst";
+    changelog = "https://github.com/scrapy/scrapy/raw/${src.tag}/docs/news.rst";
     license = licenses.bsd3;
     maintainers = with maintainers; [ vinnymeller ];
   };

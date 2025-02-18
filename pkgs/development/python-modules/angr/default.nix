@@ -23,7 +23,6 @@
   pycparser,
   pyformlang,
   pythonOlder,
-  pythonRelaxDepsHook,
   pyvex,
   rich,
   rpyc,
@@ -37,7 +36,7 @@
 
 buildPythonPackage rec {
   pname = "angr";
-  version = "9.2.107";
+  version = "9.2.141";
   pyproject = true;
 
   disabled = pythonOlder "3.11";
@@ -45,16 +44,22 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "angr";
     repo = "angr";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-f4RiLXEp4q3V2SiX6OSLHbAVCaZ5GLOvqm1qmBAYIZ8=";
+    tag = "v${version}";
+    hash = "sha256-rrJTYe3o/Ra8+EKAA7t0M02tWVN4Ul5ueUar7lpUvMg=";
   };
 
-  pythonRelaxDeps = [ "capstone" ];
+  postPatch = ''
+    # unicorn is also part of build-system
+    substituteInPlace pyproject.toml \
+      --replace-fail "unicorn==2.0.1.post1" "unicorn"
+  '';
 
-  build-system = [
-    pythonRelaxDepsHook
-    setuptools
+  pythonRelaxDeps = [
+    "capstone"
+    "unicorn"
   ];
+
+  build-system = [ setuptools ];
 
   dependencies = [
     ailment
@@ -86,11 +91,11 @@ buildPythonPackage rec {
     unique-log-filter
   ];
 
-  passthru.optional-dependencies = {
+  optional-dependencies = {
     AngrDB = [ sqlalchemy ];
   };
 
-  setupPyBuildFlags = lib.optionals stdenv.isLinux [
+  setupPyBuildFlags = lib.optionals stdenv.hostPlatform.isLinux [
     "--plat-name"
     "linux"
   ];
@@ -112,5 +117,7 @@ buildPythonPackage rec {
     homepage = "https://angr.io/";
     license = with licenses; [ bsd2 ];
     maintainers = with maintainers; [ fab ];
+    # angr is pining unicorn
+    broken = versionAtLeast unicorn.version "2.0.1.post1";
   };
 }

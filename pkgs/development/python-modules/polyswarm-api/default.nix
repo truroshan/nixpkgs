@@ -7,7 +7,6 @@
   pytestCheckHook,
   python-dateutil,
   pythonOlder,
-  pythonRelaxDepsHook,
   requests,
   responses,
   setuptools,
@@ -16,7 +15,7 @@
 
 buildPythonPackage rec {
   pname = "polyswarm-api";
-  version = "3.7.0";
+  version = "3.11.0";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -24,13 +23,12 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "polyswarm";
     repo = "polyswarm-api";
-    rev = "refs/tags/${version}";
-    hash = "sha256-zEh8qus/+3mcAaY+SK6FLT6wB6UtGLKPoR1WVZdn9vM=";
+    tag = version;
+    hash = "sha256-7hmuJr+1ghVsp8EfykhVLCHwJYrO2m6cBREUFRov5Mo=";
   };
 
   pythonRelaxDeps = [ "future" ];
 
-  nativeBuildInputs = [ pythonRelaxDepsHook ];
 
   build-system = [ setuptools ];
 

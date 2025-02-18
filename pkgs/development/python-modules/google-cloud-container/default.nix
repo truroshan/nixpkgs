@@ -15,14 +15,15 @@
 
 buildPythonPackage rec {
   pname = "google-cloud-container";
-  version = "2.47.0";
+  version = "2.56.0";
   pyproject = true;
 
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
-    inherit pname version;
-    hash = "sha256-tvzOKTu2n5b9JDo9EJw48BUrJuOwOR9JK6PQyi44HfI=";
+    pname = "google_cloud_container";
+    inherit version;
+    hash = "sha256-BD2e/4aDhyY5Cs95YZwAO1sJK7t+s9VCYwbpsrlQDg8=";
   };
 
   build-system = [ setuptools ];
@@ -56,6 +57,6 @@ buildPythonPackage rec {
     homepage = "https://github.com/googleapis/google-cloud-python/tree/main/packages/google-cloud-container";
     changelog = "https://github.com/googleapis/google-cloud-python/blob/google-cloud-container-v${version}/packages/google-cloud-container/CHANGELOG.md";
     license = licenses.asl20;
-    maintainers = with maintainers; [ ];
+    maintainers = [ ];
   };
 }

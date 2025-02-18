@@ -1,17 +1,22 @@
-{ lib, rustPlatform, fetchFromGitHub }:
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "minijinja";
-  version = "2.0.2";
+  version = "2.7.0";
 
   src = fetchFromGitHub {
     owner = "mitsuhiko";
     repo = "minijinja";
     rev = version;
-    hash = "sha256-aqoUsVj9XYlbi8wh2Rqxy+M9+RU9NLp97qlpTKUlJEI=";
+    hash = "sha256-8MKd1sT+zg03tkKppd8/Zu6ZZWoVTMTmQXSrcDKp0xw=";
   };
 
-  cargoHash = "sha256-G9nIlri7VwojNRsCwZxseZxcSxLqAKtnm+AV7TLqJm4=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-cOaHJsgzCTxY1JGpSamajyWfmAc+M+s2OS5xhcvUN8I=";
 
   # The tests relies on the presence of network connection
   doCheck = false;

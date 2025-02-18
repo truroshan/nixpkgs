@@ -1,7 +1,8 @@
-{ lib
-, fetchFromGitHub
-, fetchpatch
-, python3
+{
+  lib,
+  fetchFromGitHub,
+  fetchpatch,
+  python3,
 }:
 
 python3.pkgs.buildPythonApplication rec {
@@ -30,7 +31,6 @@ python3.pkgs.buildPythonApplication rec {
   nativeBuildInputs = with python3.pkgs; [
     poetry-core
     poetry-dynamic-versioning
-    pythonRelaxDepsHook
   ];
 
   propagatedBuildInputs = with python3.pkgs; [
@@ -45,10 +45,6 @@ python3.pkgs.buildPythonApplication rec {
     python-json-logger
     ruamel-yaml
   ];
-
-  postInstall = ''
-    rm $out/lib/python*/site-packages/LICENSE
-  '';
 
   # Module has no tests
   doCheck = false;

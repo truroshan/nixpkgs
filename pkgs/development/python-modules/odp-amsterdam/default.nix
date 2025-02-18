@@ -5,16 +5,16 @@
   buildPythonPackage,
   fetchFromGitHub,
   poetry-core,
-  pythonRelaxDepsHook,
   pythonOlder,
   pytest-asyncio,
   pytestCheckHook,
   pytz,
+  syrupy,
 }:
 
 buildPythonPackage rec {
   pname = "odp-amsterdam";
-  version = "6.0.1";
+  version = "6.0.2";
   pyproject = true;
 
   disabled = pythonOlder "3.11";
@@ -22,8 +22,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "klaasnicolaas";
     repo = "python-odp-amsterdam";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-teLjiclkbjlG226gMUgqc2IUEWqKcSm6xIekw+AQPU4=";
+    tag = "v${version}";
+    hash = "sha256-veBccNxqhqBYKUC5pdjZ1IOWUYUqiNK5pJq1L+8UCxA=";
   };
 
   postPatch = ''
@@ -32,14 +32,13 @@ buildPythonPackage rec {
     sed -i '/addopts/d' pyproject.toml
   '';
 
-  nativeBuildInputs = [
+  build-system = [
     poetry-core
-    pythonRelaxDepsHook
   ];
 
   pythonRelaxDeps = [ "pytz" ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     aiohttp
     pytz
   ];
@@ -48,6 +47,7 @@ buildPythonPackage rec {
     aresponses
     pytest-asyncio
     pytestCheckHook
+    syrupy
   ];
 
   pythonImportsCheck = [ "odp_amsterdam" ];

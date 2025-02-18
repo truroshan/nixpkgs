@@ -1,20 +1,21 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
 }:
 
 buildGoModule rec {
   pname = "livekit";
-  version = "1.6.1";
+  version = "1.8.3";
 
   src = fetchFromGitHub {
     owner = "livekit";
     repo = "livekit";
     rev = "v${version}";
-    hash = "sha256-i6G221n6wIOYo//+w/4XN4QpTkt7AYwAw6RBYo66vXI=";
+    hash = "sha256-YzyrALWFdrnP6iAT0zTYKzhf16I3Xf39WsgLXz8rDCw=";
   };
 
-  vendorHash = "sha256-7MPjhjTIO7ZKKyc0Du8+0F+8PvpiwiIBMnXZiYX2XyI=";
+  vendorHash = "sha256-v+K4+BbwYKQD4q5egJaxLYozK8tbTra6c22ZzSlwvPE=";
 
   subPackages = [ "cmd/server" ];
 

@@ -5,7 +5,7 @@
   rustPlatform,
   rustc,
   setuptools,
-  setuptools-rust,
+  setuptoolsRustBuildHook,
   fetchPypi,
   pythonOlder,
   pytestCheckHook,
@@ -21,34 +21,34 @@
 
 buildPythonPackage rec {
   pname = "bcrypt";
-  version = "4.1.2";
+  version = "4.2.1";
   format = "pyproject";
 
   disabled = pythonOlder "3.6";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-MzE6EgCjrpC3VYfOrFArBIuED8aef3oJBbX4f6x6Elg=";
+    hash = "sha256-Z2U4bjq4f1abJ2mIdCA5uqsIeyzbAegJ1050UDwvqv4=";
   };
 
   cargoRoot = "src/_bcrypt";
-  cargoDeps = rustPlatform.fetchCargoTarball {
+  cargoDeps = rustPlatform.fetchCargoVendor {
     inherit src;
     sourceRoot = "${pname}-${version}/${cargoRoot}";
     name = "${pname}-${version}";
-    hash = "sha256-fTD1AKvyeni5ukYjK53gueKLey+rcIUjW/0R289xeb0=";
+    hash = "sha256-tCeXgypF5Tqnzv7KfoliUZeO6B83YK5cYORhwlvBVnY=";
   };
 
   nativeBuildInputs = [
     setuptools
-    setuptools-rust
+    setuptoolsRustBuildHook
     rustPlatform.cargoSetupHook
     cargo
     rustc
   ];
 
   # Remove when https://github.com/NixOS/nixpkgs/pull/190093 lands.
-  buildInputs = lib.optional stdenv.isDarwin libiconv;
+  buildInputs = lib.optional stdenv.hostPlatform.isDarwin libiconv;
 
   nativeCheckInputs = [ pytestCheckHook ];
 

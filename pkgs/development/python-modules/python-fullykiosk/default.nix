@@ -8,7 +8,7 @@
 
 buildPythonPackage rec {
   pname = "python-fullykiosk";
-  version = "0.0.13";
+  version = "0.0.14";
   format = "setuptools";
 
   disabled = pythonOlder "3.7";
@@ -16,8 +16,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "cgarwood";
     repo = pname;
-    rev = "refs/tags/${version}";
-    hash = "sha256-GElLaSSr/EEhtjgasP2C79kf+HluVPuQ21I8La7IvLs=";
+    tag = version;
+    hash = "sha256-+JBgBi05zNgIt2cXlHjFPI6nBFR7SpMCWIQHKtnZeX4=";
   };
 
   propagatedBuildInputs = [ aiohttp ];

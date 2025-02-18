@@ -4,19 +4,17 @@
   fetchPypi,
   fonttools,
   pytestCheckHook,
-  python,
   rustPlatform,
-  unzip,
 }:
 
 buildPythonPackage rec {
   pname = "kurbopy";
-  version = "0.10.40";
+  version = "0.11.0";
   format = "setuptools";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-dhpcDi20Na6SDbRxrC8N3SWdN1J/CWJgCUI3scJX/6s=";
+    hash = "sha256-0TIVx0YH5L8l6at1fcWkj2UZYK0aF1fahTu9/+7MWMI=";
   };
 
   propagatedBuildInputs = [ fonttools ];
@@ -25,13 +23,12 @@ buildPythonPackage rec {
     rustPlatform.maturinBuildHook
   ];
 
-  cargoDeps = rustPlatform.fetchCargoTarball {
+  cargoDeps = rustPlatform.fetchCargoVendor {
     inherit src;
     name = "${pname}-${version}";
-    hash = "sha256-V3LeT0dqkfft1ftc+azwvuSzzdUJ7/wAp31fN7te9RQ=";
+    hash = "sha256-EPSaMIZqXrFzXAwNr1AtvmntkCLePXwAVzGMj8dWbTQ=";
   };
 
-  doCheck = true;
   nativeCheckInputs = [ pytestCheckHook ];
   preCheck = ''
     # pytestCheckHook puts . at the front of Python's sys.path, due to:

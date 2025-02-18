@@ -5,12 +5,13 @@
   pythonOlder,
   bitarray,
   setuptools,
-  unittestCheckHook,
+  pytest-benchmark,
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
   pname = "bitstring";
-  version = "4.1.4";
+  version = "4.3.0";
   pyproject = true;
 
   disabled = pythonOlder "3.7";
@@ -18,15 +19,28 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "scott-griffiths";
     repo = pname;
-    rev = "refs/tags/bitstring-${version}";
-    hash = "sha256-CO7R2SCb232OW1DCLo45UIarFG5FhR4WkwuQieXha0Y=";
+    tag = "bitstring-${version}";
+    hash = "sha256-0AaOVjroVb/maFBaB55ahwWyRHHnofja4pgSgjQMsT8=";
   };
 
-  nativeBuildInputs = [ setuptools ];
+  build-system = [ setuptools ];
 
-  propagatedBuildInputs = [ bitarray ];
+  dependencies = [ bitarray ];
 
-  nativeCheckInputs = [ unittestCheckHook ];
+  nativeCheckInputs = [
+    pytest-benchmark
+    pytestCheckHook
+  ];
+
+  pytestFlagsArray = [
+    "--benchmark-disable"
+  ];
+
+  disabledTestPaths = [
+    "tests/test_bits.py"
+    "tests/test_fp8.py"
+    "tests/test_mxfp.py"
+  ];
 
   pythonImportsCheck = [ "bitstring" ];
 

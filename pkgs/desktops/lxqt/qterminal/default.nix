@@ -1,26 +1,28 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, lxqt-build-tools
-, qtbase
-, qtermwidget
-, qttools
-, qtwayland
-, wrapQtAppsHook
-, gitUpdater
-, nixosTests
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  layer-shell-qt,
+  lxqt-build-tools,
+  qtbase,
+  qtermwidget,
+  qttools,
+  qtwayland,
+  wrapQtAppsHook,
+  gitUpdater,
+  nixosTests,
 }:
 
 stdenv.mkDerivation rec {
   pname = "qterminal";
-  version = "2.0.0";
+  version = "2.1.0";
 
   src = fetchFromGitHub {
     owner = "lxqt";
     repo = pname;
     rev = version;
-    hash = "sha256-SesKJCiMoiqkvMM29+0IMERozQ9zuD+NJTtaC6j7ubM=";
+    hash = "sha256-Nluw0waf+lqpbajsPv+HYhPD3y7XmgifSu2r7I/J4RI=";
   };
 
   nativeBuildInputs = [
@@ -31,6 +33,7 @@ stdenv.mkDerivation rec {
   ];
 
   buildInputs = [
+    layer-shell-qt
     qtbase
     qtermwidget
     qtwayland

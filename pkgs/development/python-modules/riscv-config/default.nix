@@ -7,7 +7,6 @@
   pyyaml,
   ruamel-yaml,
   setuptools,
-  pythonRelaxDepsHook,
 }:
 
 buildPythonPackage rec {
@@ -20,15 +19,13 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "riscv-software-src";
     repo = "riscv-config";
-    rev = "refs/tags/${version}";
+    tag = version;
     hash = "sha256-eaHi6ezgU8gQYH97gCS2TzEzIP3F4zfn7uiA/To2Gmc=";
   };
 
   pythonRelaxDeps = [ "pyyaml" ];
 
   build-system = [ setuptools ];
-
-  nativeBuildInputs = [ pythonRelaxDepsHook ];
 
   dependencies = [
     cerberus

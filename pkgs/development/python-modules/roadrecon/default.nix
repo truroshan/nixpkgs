@@ -11,7 +11,6 @@
   marshmallow-sqlalchemy,
   openpyxl,
   pythonOlder,
-  pythonRelaxDepsHook,
   roadlib,
   setuptools,
   sqlalchemy,
@@ -19,20 +18,19 @@
 
 buildPythonPackage rec {
   pname = "roadrecon";
-  version = "1.4.0";
+  version = "1.6.1";
   pyproject = true;
 
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-OEftVwU30tLP091Z5CIl67hkjjcqY+Qo04/wHZlbuFc=";
+    hash = "sha256-yyPqXLkKe1LpDJDfREYDyVpgpvDB04Lh2YaL3c6ZYYc=";
   };
 
   pythonRelaxDeps = [ "flask" ];
 
   nativeBuildInputs = [
-    pythonRelaxDepsHook
     setuptools
   ];
 

@@ -8,6 +8,7 @@
   pytestCheckHook,
   typing-extensions,
   importlib-metadata,
+  mypy,
   sphinxHook,
   sphinx-autodoc-typehints,
   sphinx-rtd-theme,
@@ -16,14 +17,14 @@
 
 buildPythonPackage rec {
   pname = "typeguard";
-  version = "4.2.1";
-  format = "pyproject";
+  version = "4.4.1";
+  pyproject = true;
 
   disabled = pythonOlder "3.8";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-xVahuVlIIwUQBwylP6A0H7CWRhG9BdWY2H+1IRXWX+4=";
+    hash = "sha256-DSKonQC0U7R8SYdfQrZgG5YXV1QaLh4O9Re24kITwhs=";
   };
 
   outputs = [
@@ -31,7 +32,7 @@ buildPythonPackage rec {
     "doc"
   ];
 
-  nativeBuildInputs = [
+  build-system = [
     glibcLocales
     setuptools
     setuptools-scm
@@ -40,35 +41,24 @@ buildPythonPackage rec {
     sphinx-rtd-theme
   ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     typing-extensions
   ] ++ lib.optionals (pythonOlder "3.10") [ importlib-metadata ];
 
   env.LC_ALL = "en_US.utf-8";
 
-  nativeCheckInputs = [ pytestCheckHook ];
+  nativeCheckInputs = [
+    mypy
+    pytestCheckHook
+  ];
 
   pythonImportsCheck = [ "typeguard" ];
 
-  disabledTestPaths = [
-    # mypy tests aren't passing with latest mypy
-    "tests/mypy"
-  ];
-
-  disabledTests = [
-    # AssertionError: 'type of argument "x" must be ' != 'None'
-    "TestPrecondition::test_precondition_ok_and_typeguard_fails"
-    # AttributeError: 'C' object has no attribute 'x'
-    "TestInvariant::test_invariant_ok_and_typeguard_fails"
-    # AttributeError: 'D' object has no attribute 'x'
-    "TestInheritance::test_invariant_ok_and_typeguard_fails"
-  ];
-
-  meta = with lib; {
+  meta = {
     description = "This library provides run-time type checking for functions defined with argument type annotations";
     homepage = "https://github.com/agronholm/typeguard";
     changelog = "https://github.com/agronholm/typeguard/releases/tag/${version}";
-    license = licenses.mit;
-    maintainers = with maintainers; [ ];
+    license = lib.licenses.mit;
+    maintainers = [ ];
   };
 }

@@ -1,64 +1,66 @@
-{ lib
-, stdenv
-, fetchFromGitLab
-, meson
-, ninja
-, pkg-config
-, appstream
-, desktop-file-utils
-, gtk4
-, glib
-, pango
-, atk
-, gdk-pixbuf
-, shared-mime-info
-, itstool
-, poppler
-, ghostscriptX
-, djvulibre
-, libspectre
-, libarchive
-, libsecret
-, wrapGAppsHook4
-, librsvg
-, gobject-introspection
-, yelp-tools
-, gsettings-desktop-schemas
-, dbus
-, gi-docgen
-, libgxps
-, supportXPS ? true # Open XML Paper Specification via libgxps
-, withLibsecret ? true
-, libadwaita
-, exempi
-, cargo
-, rustPlatform
+{
+  lib,
+  stdenv,
+  fetchurl,
+  meson,
+  ninja,
+  pkg-config,
+  appstream,
+  desktop-file-utils,
+  gtk4,
+  glib,
+  pango,
+  gdk-pixbuf,
+  shared-mime-info,
+  itstool,
+  poppler,
+  nautilus,
+  darwin,
+  djvulibre,
+  libspectre,
+  libarchive,
+  libsecret,
+  wrapGAppsHook4,
+  librsvg,
+  gobject-introspection,
+  yelp-tools,
+  gsettings-desktop-schemas,
+  dbus,
+  gi-docgen,
+  libgxps,
+  withLibsecret ? true,
+  supportNautilus ? (!stdenv.hostPlatform.isDarwin),
+  libadwaita,
+  exempi,
+  cargo,
+  rustPlatform,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "papers";
-  version = "45.0-unstable-2024-03-27";
+  version = "47.3";
 
-  outputs = [ "out" "dev" "devdoc" ];
+  outputs = [
+    "out"
+    "dev"
+    "devdoc"
+  ];
 
-  src = fetchFromGitLab {
-    domain = "gitlab.gnome.org";
-    owner = "GNOME/Incubator";
-    repo = "papers";
-    rev = "4374535f4f5e5cea613b2df7b3dc99e97da27d99";
-    hash = "sha256-wjLRGENJ+TjXV3JPn/lcqv3DonAsJrC0OiLs1DoNHkc=";
+  src = fetchurl {
+    url = "mirror://gnome/sources/papers/${lib.versions.major finalAttrs.version}/papers-${finalAttrs.version}.tar.xz";
+    hash = "sha256-PlhTk+gef6D5r55U38hvYSa1w9hS6pDf3DumsHlSxKo=";
   };
 
   cargoRoot = "shell-rs";
 
-  cargoDeps = rustPlatform.importCargoLock {
-    lockFile = ./Cargo.lock;
-
-    outputHashes = {
-      "cairo-rs-0.20.0" = "sha256-aCG9rh/tXqmcCIijuqJZJEgrGdG/IygcdWlvKYzVPhU=";
-      "gdk4-0.9.0" = "sha256-KYisC8nm6KVfowiKXtMoimXzB3UjHarH+2ZLhvW8oMU=";
-      "libadwaita-0.7.0" = "sha256-gfkaj/BIqvWj1UNVAGNNXww4aoJPlqvBwIRGmDiv48E=";
-    };
+  cargoDeps = rustPlatform.fetchCargoVendor {
+    inherit (finalAttrs)
+      src
+      pname
+      version
+      cargoRoot
+      ;
+    hash = "sha256-66pOdZxgzbvXkvF07rNvWtcF/dJ2+RuS24IeI/VWykE=";
   };
 
   nativeBuildInputs = [
@@ -76,38 +78,58 @@ stdenv.mkDerivation (finalAttrs: {
     rustPlatform.cargoSetupHook
   ];
 
-  buildInputs = [
-    atk
-    dbus # only needed to find the service directory
-    djvulibre
-    exempi
-    gdk-pixbuf
-    ghostscriptX
-    glib
-    gtk4
-    gsettings-desktop-schemas
-    libadwaita
-    libarchive
-    librsvg
-    libspectre
-    pango
-    poppler
-  ] ++ lib.optionals withLibsecret [
-    libsecret
-  ] ++ lib.optionals supportXPS [
-    libgxps
-  ];
+  buildInputs =
+    [
+      dbus # only needed to find the service directory
+      djvulibre
+      exempi
+      gdk-pixbuf
+      glib
+      gtk4
+      gsettings-desktop-schemas
+      libadwaita
+      libarchive
+      libgxps
+      librsvg
+      libspectre
+      pango
+      poppler
+    ]
+    ++ lib.optionals withLibsecret [
+      libsecret
+    ]
+    ++ lib.optionals supportNautilus [
+      nautilus
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      darwin.apple_sdk.frameworks.Foundation
+    ];
 
-  mesonFlags = [
-    "-Dnautilus=false"
-    "-Dps=enabled"
-  ] ++ lib.optionals (!withLibsecret) [
-    "-Dkeyring=disabled"
-  ];
+  mesonFlags =
+    [
+      "-Dps=enabled"
+    ]
+    ++ lib.optionals (!withLibsecret) [
+      "-Dkeyring=disabled"
+    ]
+    ++ lib.optionals (!supportNautilus) [
+      "-Dnautilus=false"
+    ];
 
-  preFixup = ''
-    gappsWrapperArgs+=(--prefix XDG_DATA_DIRS : "${shared-mime-info}/share")
+  postInstall = ''
+    substituteInPlace $out/share/thumbnailers/papers.thumbnailer \
+      --replace-fail '=papers-thumbnailer' "=$out/bin/papers-thumbnailer"
   '';
+
+  preFixup =
+    ''
+      gappsWrapperArgs+=(
+        --prefix XDG_DATA_DIRS : "${shared-mime-info}/share"
+      )
+    ''
+    + lib.optionalString stdenv.hostPlatform.isDarwin ''
+      install_name_tool -add_rpath "$out/lib" "$out/bin/papers"
+    '';
 
   postFixup = ''
     # Cannot be in postInstall, otherwise _multioutDocs hook in preFixup will move right back.
@@ -116,6 +138,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = with lib; {
     homepage = "https://wiki.gnome.org/Apps/papers";
+    changelog = "https://gitlab.gnome.org/GNOME/Incubator/papers/-/blob/${finalAttrs.version}/NEWS?ref_type=tags";
     description = "GNOME's document viewer";
 
     longDescription = ''

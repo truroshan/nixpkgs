@@ -6,7 +6,6 @@
   jsonschema,
   pytestCheckHook,
   python-dateutil,
-  pythonRelaxDepsHook,
   setuptools,
   wheel,
 }:
@@ -19,7 +18,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "dbt-labs";
     repo = pname;
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-DboVCvByI8bTThamGBwSiQADGxIaEnTMmwmVI+4ARgc=";
   };
 
@@ -33,7 +32,6 @@ buildPythonPackage rec {
   ];
 
   nativeBuildInputs = [
-    pythonRelaxDepsHook
     setuptools
     wheel
   ];

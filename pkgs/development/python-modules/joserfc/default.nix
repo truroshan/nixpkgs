@@ -16,14 +16,14 @@
 
 buildPythonPackage rec {
   pname = "joserfc";
-  version = "0.9.0";
+  version = "1.0.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "authlib";
     repo = "joserfc";
-    rev = version;
-    hash = "sha256-+NFCveMPzE0hSs2Qe20/MDHApXVtU3cR/GPFKPqfVV4=";
+    tag = version;
+    hash = "sha256-e7c1reeAo+3dyNuDRXPlzxOwWQbAcHe+bSRVlvSW2rw=";
   };
 
   build-system = [ setuptools ];
@@ -42,6 +42,6 @@ buildPythonPackage rec {
     description = "Implementations of JOSE RFCs in Python";
     homepage = "https://github.com/authlib/joserfc";
     license = licenses.bsd3;
-    maintainers = with maintainers; [ ];
+    maintainers = [ ];
   };
 }

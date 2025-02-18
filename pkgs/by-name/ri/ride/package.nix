@@ -4,7 +4,7 @@
   buildNpmPackage,
   fetchFromGitHub,
   fetchpatch,
-  substituteAll,
+  replaceVars,
   jq,
   moreutils,
   zip,
@@ -14,24 +14,6 @@
   electron,
 }:
 
-let
-  platformInfos = {
-    "x86_64-linux" = {
-      zipSuffix = "linux-x64";
-      buildCmd = "linux";
-    };
-    "x86_64-darwin" = {
-      zipSuffix = "darwin-x64";
-      buildCmd = "osx";
-    };
-    "aarch64-darwin" = {
-      zipSuffix = "darwin-arm64";
-      buildCmd = "osxarm";
-    };
-  };
-
-  platformInfo = platformInfos.${stdenv.system};
-in
 buildNpmPackage rec {
   pname = "ride";
   version = "4.5.4097";
@@ -39,11 +21,11 @@ buildNpmPackage rec {
   src = fetchFromGitHub {
     owner = "Dyalog";
     repo = "ride";
-    rev = "v${version}";
+    tag = "v${version}";
     hash = "sha256-xR+HVC1JVrPkgPhIJZxdTVG52+QbanmD1c/uO5l84oc=";
   };
 
-  npmDepsHash = "sha256-h+48/9h7/cD8woyA0UCLtzKuE9jCrfpDk6IeoDWnYik=";
+  npmDepsHash = "sha256-C8puCz/w5xkaR4QVXXOdoO8n4gNZrRWMcB9/f1DcuMc=";
 
   patches = [
     # Adds support for electron versions >=28
@@ -52,12 +34,14 @@ buildNpmPackage rec {
       url = "https://github.com/Dyalog/ride/commit/de42ebbd5036cfe0c7e6604296e87cc57ac9d365.patch";
       hash = "sha256-5iKSNcxOOo2fKNvy3Rv+AlH3psYhLWLWUY0l8M6mAD4=";
     })
-    # Fix info in the "about" page, set electron version, set local-cache as zipdir
-    (substituteAll {
-      src = ./mk.patch;
-      version = version;
-      electron_version = electron.version;
+
+    # Fix info in the "about" page, enable asar, add option to build for the detected system
+    (replaceVars ./mk.patch {
+      inherit version;
     })
+
+    # would not build with nodejs_22 and above without this
+    ./update-nan.patch
   ];
 
   postPatch = ''
@@ -86,39 +70,53 @@ buildNpmPackage rec {
   nativeBuildInputs = [
     zip
     makeWrapper
-    copyDesktopItems
-  ];
+  ] ++ lib.optionals stdenv.hostPlatform.isLinux [ copyDesktopItems ];
 
   env.ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
 
-  npmBuildFlags = platformInfo.buildCmd;
+  # our patch adds the platform detecting build option
+  npmBuildFlags = "self";
 
-  # This package uses electron-packager instead of electron-builder
-  # Here, we create a local cache of electron zip-files, so electron-packager can copy from it
   postConfigure = ''
-    mkdir local-cache
-    cp -r --no-preserve=all ${electron}/libexec/electron electron
-    pushd electron
-    zip -qr ../local-cache/electron-v${electron.version}-${platformInfo.zipSuffix}.zip *
+    # electron files need to be writable on Darwin
+    cp -r ${electron.dist} electron-dist
+    chmod -R u+w electron-dist
+
+    pushd electron-dist
+    zip -0Xqr ../electron.zip *
     popd
+
+    rm -r electron-dist
+
+    # force electron-packager to use our electron instead of downloading it, even if it is a different version
+    substituteInPlace node_modules/electron-packager/src/index.js \
+        --replace-fail 'await this.getElectronZipPath(downloadOpts)' '"electron.zip"'
   '';
 
   installPhase = ''
     runHook preInstall
 
-    install -Dm644 D.png $out/share/icons/hicolor/64x64/apps/ride.png
-    install -Dm644 D.svg $out/share/icons/hicolor/scalable/apps/ride.svg
-
     pushd _/ride*/*
 
     install -Dm644 ThirdPartyNotices.txt -t $out/share/doc/ride
 
-    mkdir -p $out/share/ride
-    cp -r locales resources{,.pak} $out/share/ride
-    makeWrapper ${lib.getExe electron} $out/bin/ride \
-      --add-flags $out/share/ride/resources/app.asar \
-      --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations}}" \
-      --inherit-argv0
+    ${lib.optionalString stdenv.hostPlatform.isLinux ''
+      install -Dm644 $src/D.png $out/share/icons/hicolor/64x64/apps/ride.png
+      install -Dm644 $src/D.svg $out/share/icons/hicolor/scalable/apps/ride.svg
+
+      mkdir -p $out/share/ride
+      cp -r locales resources{,.pak} $out/share/ride
+      makeShellWrapper ${lib.getExe electron} $out/bin/ride \
+          --add-flags $out/share/ride/resources/app.asar \
+          --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}" \
+          --inherit-argv0
+    ''}
+
+    ${lib.optionalString stdenv.hostPlatform.isDarwin ''
+      mkdir -p $out/Applications
+      cp -r Ride-*.app $out/Applications
+      makeWrapper $out/Applications/Ride-*.app/Contents/MacOS/Ride-* $out/bin/ride
+    ''}
 
     popd
 
@@ -141,8 +139,7 @@ buildNpmPackage rec {
   ];
 
   meta = {
-    broken = stdenv.isDarwin;
-    changelog = "https://github.com/Dyalog/ride/releases/tag/${src.rev}";
+    changelog = "https://github.com/Dyalog/ride/releases/tag/v${version}";
     description = "Remote IDE for Dyalog APL";
     homepage = "https://github.com/Dyalog/ride";
     license = lib.licenses.mit;
@@ -151,6 +148,6 @@ buildNpmPackage rec {
       tomasajt
       markus1189
     ];
-    platforms = lib.attrNames platformInfos;
+    platforms = electron.meta.platforms;
   };
 }

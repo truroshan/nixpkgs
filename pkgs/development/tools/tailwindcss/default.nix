@@ -1,36 +1,40 @@
-{ lib
-, fetchurl
-, stdenv
-, runCommand
-, tailwindcss
-,
+{
+  lib,
+  fetchurl,
+  stdenv,
+  runCommand,
+  tailwindcss,
 }:
 let
   inherit (stdenv.hostPlatform) system;
   throwSystem = throw "tailwindcss has not been packaged for ${system} yet.";
 
-  plat = {
-    aarch64-darwin = "macos-arm64";
-    aarch64-linux = "linux-arm64";
-    armv7l-linux = "linux-armv7";
-    x86_64-darwin = "macos-x64";
-    x86_64-linux = "linux-x64";
-  }.${system} or throwSystem;
+  plat =
+    {
+      aarch64-darwin = "macos-arm64";
+      aarch64-linux = "linux-arm64";
+      armv7l-linux = "linux-armv7";
+      x86_64-darwin = "macos-x64";
+      x86_64-linux = "linux-x64";
+    }
+    .${system} or throwSystem;
 
-  hash = {
-    aarch64-darwin = "sha256-ubXwWgg4QAwM27meaIjT/HjgoVs9cVUiGNWoGRLktBI=";
-    aarch64-linux = "sha256-vd1hRTAGLI3Kv/FmYICKTSajyneh+F9vM1+gnqGthGs=";
-    armv7l-linux = "sha256-Jl5H+MZUMBZOBmHgzpM/S7lAY4F1KtRS0G7Vu7ORKgg=";
-    x86_64-darwin = "sha256-SL0DjE1ssPlypsWbhxq/YgSUYtdqOXkb6EktfmAAXkQ=";
-    x86_64-linux = "sha256-18MbsqzYcr9hsON5hZujEBzvi7vyQzpYZOCitYYq5HY=";
-  }.${system} or throwSystem;
+  hash =
+    {
+      aarch64-darwin = "sha256-odDHmFdZrMygvxLlGsHcvw9s8v/7Yubg9i0JHEd6EKM=";
+      aarch64-linux = "sha256-abE3i4EzGS19L+sSoRb6EtA1WU9Y2z7/IVh55K2M85s=";
+      armv7l-linux = "sha256-cE59ka+6bh9jCImv0NfbNrRjTmKFEswUHVBKW+riiGA=";
+      x86_64-darwin = "sha256-bL2tdL53bAh/+l6aBXUSxUiY+f6IKNM2IhLf4y/JM6M=";
+      x86_64-linux = "sha256-fST3+hkdIZO3jNX1pCpgk+FECVIZCFKfQtgLEf3h8dQ=";
+    }
+    .${system} or throwSystem;
 in
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "tailwindcss";
-  version = "3.4.4";
+  version = "3.4.17";
 
   src = fetchurl {
-    url = "https://github.com/tailwindlabs/tailwindcss/releases/download/v${version}/tailwindcss-${plat}";
+    url = "https://github.com/tailwindlabs/tailwindcss/releases/download/v${finalAttrs.version}/tailwindcss-${plat}";
     inherit hash;
   };
 
@@ -40,13 +44,15 @@ stdenv.mkDerivation rec {
   dontFixup = true;
 
   installPhase = ''
+    runHook preInstall
     mkdir -p $out/bin
-    cp ${src} $out/bin/tailwindcss
+    cp ${finalAttrs.src} $out/bin/tailwindcss
     chmod 755 $out/bin/tailwindcss
+    runHook postInstall
   '';
 
   passthru.tests.helptext = runCommand "tailwindcss-test-helptext" { } ''
-    ${tailwindcss}/bin/tailwindcss --help > $out
+    ${lib.getExe finalAttrs.finalPackage} --help > $out
   '';
   passthru.updateScript = ./update.sh;
 
@@ -59,4 +65,4 @@ stdenv.mkDerivation rec {
     mainProgram = "tailwindcss";
     platforms = platforms.darwin ++ platforms.linux;
   };
-}
+})

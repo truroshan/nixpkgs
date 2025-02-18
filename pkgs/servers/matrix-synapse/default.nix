@@ -1,51 +1,37 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, fetchPypi
-, python3
-, openssl
-, libiconv
-, cargo
-, rustPlatform
-, rustc
-, nixosTests
-, callPackage
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  python3,
+  openssl,
+  libiconv,
+  cargo,
+  rustPlatform,
+  rustc,
+  nixosTests,
+  callPackage,
 }:
 
 let
-  python = python3.override {
-    packageOverrides = self: super: {
-      netaddr = super.netaddr.overridePythonAttrs (oldAttrs: rec {
-        version = "1.0.0";
-
-        src = fetchPypi {
-          pname = "netaddr";
-          inherit version;
-          hash = "sha256-6wRrVTVOelv4AcBJAq6SO9aZGQJC2JsJnolvmycktNM=";
-        };
-      });
-    };
-  };
-
-  plugins = python.pkgs.callPackage ./plugins { };
+  plugins = python3.pkgs.callPackage ./plugins { };
   tools = callPackage ./tools { };
 in
-python.pkgs.buildPythonApplication rec {
+python3.pkgs.buildPythonApplication rec {
   pname = "matrix-synapse";
-  version = "1.109.0";
+  version = "1.124.0";
   format = "pyproject";
 
   src = fetchFromGitHub {
     owner = "element-hq";
     repo = "synapse";
     rev = "v${version}";
-    hash = "sha256-AUaHgMKte1EIfI0EQm8YeQVtlXGTm+MZwq22WzYHGsE=";
+    hash = "sha256-hL1MdngaAVqgdN8GS9m3jn4twsbX0GPFa5cq+SCJ1oI=";
   };
 
-  cargoDeps = rustPlatform.fetchCargoTarball {
+  cargoDeps = rustPlatform.fetchCargoVendor {
     inherit src;
     name = "${pname}-${version}";
-    hash = "sha256-KwRNn2Ypt87QRUTCsj00zsu6uQtP5MSuM6B2DemoFGs=";
+    hash = "sha256-OIrjBhjSavJubpcMtHLrfuK7uhfNd+AHKUmHno32yo4=";
   };
 
   postPatch = ''
@@ -61,9 +47,13 @@ python.pkgs.buildPythonApplication rec {
     # Don't force pillow to be 10.0.1 because we already have patched it, and
     # we don't use the pillow wheels.
     sed -i 's/Pillow = ".*"/Pillow = ">=5.4.0"/' pyproject.toml
+
+    # https://github.com/element-hq/synapse/pull/17878#issuecomment-2575412821
+    substituteInPlace tests/storage/databases/main/test_events_worker.py \
+      --replace-fail "def test_recovery" "def no_test_recovery"
   '';
 
-  nativeBuildInputs = with python.pkgs; [
+  nativeBuildInputs = with python3.pkgs; [
     poetry-core
     rustPlatform.cargoSetupHook
     setuptools-rust
@@ -71,51 +61,60 @@ python.pkgs.buildPythonApplication rec {
     rustc
   ];
 
-  buildInputs = [
-    openssl
-  ] ++ lib.optionals stdenv.isDarwin [
-    libiconv
-  ];
-
-  propagatedBuildInputs = with python.pkgs; [
-    attrs
-    bcrypt
-    bleach
-    canonicaljson
-    cryptography
-    ijson
-    immutabledict
-    jinja2
-    jsonschema
-    matrix-common
-    msgpack
-    netaddr
-    packaging
-    phonenumbers
-    pillow
-    prometheus-client
-    pyasn1
-    pyasn1-modules
-    pydantic
-    pymacaroons
-    pyopenssl
-    pyyaml
-    service-identity
-    signedjson
-    sortedcontainers
-    treq
-    twisted
-    typing-extensions
-    unpaddedbase64
-  ]
-  ++ twisted.optional-dependencies.tls;
-
-  passthru.optional-dependencies = with python.pkgs; {
-    postgres = if isPyPy then [
-      psycopg2cffi
-    ] else [
-      psycopg2
+  buildInputs =
+    [
+      openssl
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      libiconv
     ];
+
+  propagatedBuildInputs =
+    with python3.pkgs;
+    [
+      attrs
+      bcrypt
+      bleach
+      canonicaljson
+      cryptography
+      ijson
+      immutabledict
+      jinja2
+      jsonschema
+      matrix-common
+      msgpack
+      python-multipart
+      netaddr
+      packaging
+      phonenumbers
+      pillow
+      prometheus-client
+      pyasn1
+      pyasn1-modules
+      pydantic
+      pymacaroons
+      pyopenssl
+      pyyaml
+      service-identity
+      signedjson
+      sortedcontainers
+      treq
+      twisted
+      typing-extensions
+      unpaddedbase64
+    ]
+    ++ twisted.optional-dependencies.tls;
+
+  optional-dependencies = with python3.pkgs; {
+    postgres =
+      if isPyPy then
+        [
+          psycopg2cffi
+        ]
+      else
+        [
+          psycopg2
+        ];
     saml2 = [
       pysaml2
     ];
@@ -146,15 +145,17 @@ python.pkgs.buildPythonApplication rec {
     ];
   };
 
-  nativeCheckInputs = [
-    openssl
-  ] ++ (with python.pkgs; [
-    mock
-    parameterized
-  ])
-  ++ lib.flatten (lib.attrValues passthru.optional-dependencies);
+  nativeCheckInputs =
+    [
+      openssl
+    ]
+    ++ (with python3.pkgs; [
+      mock
+      parameterized
+    ])
+    ++ builtins.filter (p: !p.meta.broken) (lib.flatten (lib.attrValues optional-dependencies));
 
-  doCheck = !stdenv.isDarwin;
+  doCheck = !stdenv.hostPlatform.isDarwin;
 
   checkPhase = ''
     runHook preCheck
@@ -169,14 +170,15 @@ python.pkgs.buildPythonApplication rec {
       NIX_BUILD_CORES=4
     fi
 
-    PYTHONPATH=".:$PYTHONPATH" ${python.interpreter} -m twisted.trial -j $NIX_BUILD_CORES tests
+    PYTHONPATH=".:$PYTHONPATH" ${python3.interpreter} -m twisted.trial -j $NIX_BUILD_CORES tests
 
     runHook postCheck
   '';
 
   passthru = {
     tests = { inherit (nixosTests) matrix-synapse matrix-synapse-workers; };
-    inherit plugins tools python;
+    inherit plugins tools;
+    python = python3;
   };
 
   meta = with lib; {
@@ -184,6 +186,6 @@ python.pkgs.buildPythonApplication rec {
     changelog = "https://github.com/element-hq/synapse/releases/tag/v${version}";
     description = "Matrix reference homeserver";
     license = licenses.agpl3Plus;
-    maintainers = teams.matrix.members;
+    maintainers = with lib.maintainers; teams.matrix.members ++ [ sumnerevans ];
   };
 }

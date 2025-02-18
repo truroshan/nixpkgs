@@ -7,7 +7,7 @@
 
 python3Packages.buildPythonApplication rec {
   pname = "pyprland";
-  version = "2.3.8";
+  version = "2.4.3";
   format = "pyproject";
 
   disabled = python3Packages.pythonOlder "3.10";
@@ -15,13 +15,16 @@ python3Packages.buildPythonApplication rec {
   src = fetchFromGitHub {
     owner = "hyprland-community";
     repo = "pyprland";
-    rev = "refs/tags/${version}";
-    hash = "sha256-0YUI2/gJmBoummiHGpq2p2sT25SwCdnsRwfGK2pcm4s=";
+    tag = version;
+    hash = "sha256-0vI8f5XXYi7LG6wMH2Uw05pDbozO2eBzLCuaCHBY7BQ=";
   };
 
   nativeBuildInputs = with python3Packages; [ poetry-core ];
 
   propagatedBuildInputs = with python3Packages; [ aiofiles ];
+  pythonRelaxDeps = [
+    "aiofiles"
+  ];
 
   postInstall = ''
     # file has shebang but cant be run due to a relative import, has proper entrypoint in /bin
@@ -58,7 +61,7 @@ python3Packages.buildPythonApplication rec {
     "pyprland.plugins.workspaces_follow_focus"
   ];
 
-  passthru.updateScript = nix-update-script {};
+  passthru.updateScript = nix-update-script { };
 
   meta = {
     mainProgram = "pypr";

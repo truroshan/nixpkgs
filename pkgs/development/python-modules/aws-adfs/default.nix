@@ -12,7 +12,6 @@
   pyopenssl,
   pytestCheckHook,
   pythonOlder,
-  pythonRelaxDepsHook,
   requests,
   requests-kerberos,
   toml,
@@ -28,13 +27,12 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "venth";
     repo = "aws-adfs";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-ZzQ92VBa8CApd0WkfPrUZsEZICK2fhwmt45P2sx2mK0=";
   };
 
   build-system = [
     poetry-core
-    pythonRelaxDepsHook
   ];
 
   pythonRelaxDeps = [

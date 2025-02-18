@@ -7,13 +7,14 @@
   openpyxl,
   pandas,
   poetry-core,
-  pytestCheckHook,
+  pytest7CheckHook,
+  pytest-xdist,
   pythonOlder,
 }:
 
 buildPythonPackage rec {
   pname = "niapy";
-  version = "2.3.1";
+  version = "2.5.2";
   pyproject = true;
 
   disabled = pythonOlder "3.7";
@@ -21,8 +22,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "NiaOrg";
     repo = "NiaPy";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-cT5CU1r3LZ9ValJwRUA0PaISmF6kXAz40alXbWYogGA=";
+    tag = "v${version}";
+    hash = "sha256-8hKT0WxnJijm22w4DkzicvtikaTL/mL3VhQX/WVHL58=";
   };
 
   build-system = [ poetry-core ];
@@ -34,7 +35,14 @@ buildPythonPackage rec {
     pandas
   ];
 
-  nativeCheckInputs = [ pytestCheckHook ];
+  pythonRelaxDeps = [
+    "numpy"
+  ];
+
+  nativeCheckInputs = [
+    pytest7CheckHook
+    pytest-xdist
+  ];
 
   pythonImportsCheck = [ "niapy" ];
 

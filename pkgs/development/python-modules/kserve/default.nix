@@ -1,12 +1,14 @@
 {
   lib,
+  stdenv,
   buildPythonPackage,
-  pythonOlder,
   fetchFromGitHub,
+
+  # build-system
   deprecation,
   poetry-core,
-  pythonRelaxDepsHook,
-  async-timeout,
+
+  # dependencies
   cloudevents,
   fastapi,
   grpcio,
@@ -15,51 +17,68 @@
   numpy,
   orjson,
   pandas,
-  prometheus-client,
-  protobuf,
-  psutil,
-  python-dateutil,
-  ray,
-  six,
-  tabulate,
-  timing-asgi,
   uvicorn,
-  avro,
+
+  # optional-dependencies
+  azure-identity,
   azure-storage-blob,
   azure-storage-file-share,
   boto3,
-  botocore,
   google-cloud-storage,
+  huggingface-hub,
+  asgi-logger,
+  ray,
+
+  prometheus-client,
+  protobuf,
+  requests,
+  psutil,
+  pydantic,
+  python-dateutil,
+  pyyaml,
+  six,
+  tabulate,
+  timing-asgi,
+
+  # tests
+  avro,
   grpcio-testing,
+  pytest-asyncio,
+  pytest-xdist,
   pytestCheckHook,
   tomlkit,
 }:
 
 buildPythonPackage rec {
   pname = "kserve";
-  version = "0.13.0";
+  version = "0.14.1";
   pyproject = true;
-
-  disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "kserve";
     repo = "kserve";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-Fu+1AR7FU4EQ+PhMneHFr3at3N9cN7V24wm/VOfY8GA=";
+    tag = "v${version}";
+    hash = "sha256-VwuUXANjshV4fN0i54Fs0zubHY81UtQcCV14JwMpXwA=";
   };
 
   sourceRoot = "${src.name}/python/kserve";
+
+  pythonRelaxDeps = [
+    "fastapi"
+    "httpx"
+    "numpy"
+    "prometheus-client"
+    "protobuf"
+    "uvicorn"
+    "psutil"
+  ];
 
   build-system = [
     deprecation
     poetry-core
   ];
 
-  nativeBuildInputs = [ pythonRelaxDepsHook ];
-
   dependencies = [
-    async-timeout
     cloudevents
     fastapi
     grpcio
@@ -71,48 +90,78 @@ buildPythonPackage rec {
     prometheus-client
     protobuf
     psutil
+    pydantic
     python-dateutil
-    ray
+    pyyaml
     six
     tabulate
     timing-asgi
     uvicorn
-  ] ++ ray.passthru.optional-dependencies.serve-deps;
-
-  pythonRelaxDeps = [
-    "fastapi"
-    "httpx"
-    "prometheus-client"
-    "protobuf"
-    "ray"
-    "uvicorn"
   ];
 
-  pythonImportsCheck = [ "kserve" ];
+  optional-dependencies = {
+    storage = [
+      azure-identity
+      azure-storage-blob
+      azure-storage-file-share
+      boto3
+      huggingface-hub
+      google-cloud-storage
+      requests
+    ];
+    logging = [ asgi-logger ];
+    ray = [ ray ];
+  };
 
   nativeCheckInputs = [
     avro
-    azure-storage-blob
-    azure-storage-file-share
-    boto3
-    botocore
-    google-cloud-storage
     grpcio-testing
+    pytest-asyncio
+    pytest-xdist
     pytestCheckHook
     tomlkit
-  ];
+  ] ++ lib.flatten (builtins.attrValues optional-dependencies);
+
+  pythonImportsCheck = [ "kserve" ];
+
+  pytestFlagsArray =
+    [
+      # AssertionError
+      "--deselect=test/test_server.py::TestTFHttpServerLoadAndUnLoad::test_unload"
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      # RuntimeError: Failed to start GCS
+      "--deselect=test/test_dataplane.py::TestDataPlane::test_explain"
+      "--deselect=test/test_dataplane.py::TestDataPlane::test_infer"
+      "--deselect=test/test_dataplane.py::TestDataPlane::test_model_metadata"
+      "--deselect=test/test_dataplane.py::TestDataPlane::test_server_readiness"
+      "--deselect=test/test_server.py::TestRayServer::test_explain"
+      "--deselect=test/test_server.py::TestRayServer::test_health_handler"
+      "--deselect=test/test_server.py::TestRayServer::test_infer"
+      "--deselect=test/test_server.py::TestRayServer::test_list_handler"
+      "--deselect=test/test_server.py::TestRayServer::test_liveness_handler"
+      "--deselect=test/test_server.py::TestRayServer::test_predict"
+    ];
 
   disabledTestPaths = [
     # Looks for a config file at the root of the repository
     "test/test_inference_service_client.py"
   ];
 
-  disabledTests = [
-    # Require network access
-    "test_health_handler"
-    "test_infer"
-    "test_infer_v2"
-  ];
+  disabledTests =
+    [
+      # Require network access
+      "test_infer_graph_endpoint"
+      "test_infer_path_based_routing"
+
+      # Tries to access `/tmp` (hardcoded)
+      "test_local_path_with_out_dir_exist"
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      "test_local_path_with_out_dir_not_exist"
+    ];
+
+  __darwinAllowLocalNetworking = true;
 
   meta = {
     description = "Standardized Serverless ML Inference Platform on Kubernetes";
