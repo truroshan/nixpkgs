@@ -45,6 +45,7 @@ python3Packages.buildPythonApplication rec {
   propagatedBuildInputs = with python3Packages; [
     pygobject3
     aria2p
+    platformdirs
   ];
 
   postInstall = ''
