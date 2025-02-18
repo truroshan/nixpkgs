@@ -9,12 +9,12 @@
   # build
   setuptools,
 
-  # propagates
+  # dependencies
   aiohttp,
   aiorun,
   async-timeout,
+  atomicwrites,
   coloredlogs,
-  dacite,
   orjson,
   home-assistant-chip-clusters,
 
@@ -56,7 +56,7 @@ in
 
 buildPythonPackage rec {
   pname = "python-matter-server";
-  version = "6.6.0";
+  version = "7.0.1";
   pyproject = true;
 
   disabled = pythonOlder "3.10";
@@ -65,7 +65,7 @@ buildPythonPackage rec {
     owner = "home-assistant-libs";
     repo = "python-matter-server";
     rev = "refs/tags/${version}";
-    hash = "sha256-g+97a/X0FSapMLfdW6iNf1akkHGLqCmHYimQU/M6loo=";
+    hash = "sha256-kwN7mLSKrxsAydp7PnN7kTvvi5zQSpXVwMh2slL6aIA=";
   };
 
   patches = [
@@ -91,8 +91,8 @@ buildPythonPackage rec {
     aiohttp
     aiorun
     async-timeout
+    atomicwrites
     coloredlogs
-    dacite
     orjson
     home-assistant-chip-clusters
   ];
@@ -119,10 +119,9 @@ buildPythonPackage rec {
       export PYTHONPATH=${pythonEnv}/${python.sitePackages}
     '';
 
-  pytestFlagsArray = [
-    # Upstream theymselves limit the test scope
-    # https://github.com/home-assistant-libs/python-matter-server/blob/main/.github/workflows/test.yml#L65
-    "tests/server"
+  disabledTestPaths = [
+    # requires internet access
+    "tests/server/ota/test_dcl.py"
   ];
 
   meta = with lib; {

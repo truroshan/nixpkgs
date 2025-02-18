@@ -10,12 +10,14 @@
   # dependencies
   langchain-core,
   langgraph-checkpoint,
+  langgraph-sdk,
 
   # tests
   aiosqlite,
   dataclasses-json,
   grandalf,
   httpx,
+  langgraph-checkpoint-duckdb,
   langgraph-checkpoint-postgres,
   langgraph-checkpoint-sqlite,
   langsmith,
@@ -29,21 +31,18 @@
   syrupy,
   postgresql,
   postgresqlTestHook,
-
-  # passthru
-  langgraph-sdk,
 }:
 
 buildPythonPackage rec {
   pname = "langgraph";
-  version = "0.2.34";
+  version = "0.2.70";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "langchain-ai";
     repo = "langgraph";
-    rev = "refs/tags/${version}";
-    hash = "sha256-5Suyj6pEslgR383MkYGGz7IC2A0A++02YooZmi8YtyM=";
+    tag = "${version}";
+    hash = "sha256-Vz2ZoikEZuMvt3j9tvBIcXCwWSrCV8MI7x9PIHodl8Y=";
   };
 
   postgresqlTestSetupPost = ''
@@ -58,6 +57,7 @@ buildPythonPackage rec {
   dependencies = [
     langchain-core
     langgraph-checkpoint
+    langgraph-sdk
   ];
 
   pythonImportsCheck = [ "langgraph" ];
@@ -71,6 +71,7 @@ buildPythonPackage rec {
     dataclasses-json
     grandalf
     httpx
+    langgraph-checkpoint-duckdb
     langgraph-checkpoint-postgres
     langgraph-checkpoint-sqlite
     langsmith
@@ -111,10 +112,13 @@ buildPythonPackage rec {
     # psycopg.errors.InsufficientPrivilege: permission denied to create database
     "tests/test_pregel_async.py"
     "tests/test_pregel.py"
+    "tests/test_large_cases.py"
+    "tests/test_large_cases_async.py"
   ];
 
   passthru = {
-    updateScript = langgraph-sdk.updateScript;
+    inherit (langgraph-sdk) updateScript;
+    skipBulkUpdate = true; # Broken, see https://github.com/NixOS/nixpkgs/issues/379898
   };
 
   meta = {

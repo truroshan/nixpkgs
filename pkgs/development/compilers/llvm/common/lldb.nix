@@ -30,7 +30,7 @@
 let
   src' =
     if monorepoSrc != null then
-      runCommand "lldb-src-${version}" { } (''
+      runCommand "lldb-src-${version}" { inherit (monorepoSrc) passthru; } (''
         mkdir -p "$out"
       '' + lib.optionalString (lib.versionAtLeast release_version "14") ''
         cp -r ${monorepoSrc}/cmake "$out"
@@ -54,9 +54,10 @@ stdenv.mkDerivation (rec {
   src = src';
   inherit patches;
 
-  # LLDB expects to find the path to `bin` relative to `lib` on Darwin. It can’t be patched with the location of
-  # the `lib` output because that would create a cycle between it and the `out` output.
-  outputs = [ "out" "dev" ] ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [ "lib" ];
+  # There is no `lib` output because some of the files in `$out/lib` depend on files in `$out/bin`.
+  # For example, `$out/lib/python3.12/site-packages/lldb/lldb-argdumper` is a symlink to `$out/bin/lldb-argdumper`.
+  # Also, LLDB expects to find the path to `bin` relative to `lib` on Darwin.
+  outputs = [ "out" "dev" ];
 
   sourceRoot = lib.optional (lib.versionAtLeast release_version "13") "${src.name}/${pname}";
 
@@ -90,33 +91,8 @@ stdenv.mkDerivation (rec {
     # buildInputs cc-wrapper will set up rpath correctly for us.
     (lib.getLib libclang)
   ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.libobjc
-    darwin.apple_sdk.libs.xpc
-    darwin.apple_sdk.frameworks.Foundation
     darwin.bootstrap_cmds
-    darwin.apple_sdk.frameworks.Carbon
-    darwin.apple_sdk.frameworks.Cocoa
-  ]
-  # The older libSystem used on x86_64 macOS is missing the
-  # `<bsm/audit_session.h>` header which `lldb` uses.
-  #
-  # We copy this header over from macOS 10.12 SDK.
-  #
-  # See here for context:
-  # https://github.com/NixOS/nixpkgs/pull/194634#issuecomment-1272129132
-  ++ lib.optional
-    (
-      stdenv.targetPlatform.isDarwin
-        && lib.versionOlder stdenv.targetPlatform.darwinSdkVersion "11.0"
-        && (lib.versionAtLeast release_version "15")
-    )
-    (
-      runCommand "bsm-audit-session-header" { } ''
-        install -Dm444 \
-          "${lib.getDev darwin.apple_sdk.sdk}/include/bsm/audit_session.h" \
-          "$out/include/bsm/audit_session.h"
-      ''
-    );
+  ];
 
   hardeningDisable = [ "format" ];
 
@@ -130,7 +106,7 @@ stdenv.mkDerivation (rec {
   ] ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [
     "-DLLDB_CODESIGN_IDENTITY=" # codesigning makes nondeterministic
   ] ++ lib.optionals (lib.versionAtLeast release_version "17") [
-    "-DCLANG_RESOURCE_DIR=../../../../${libclang.lib}"
+    "-DCLANG_RESOURCE_DIR=../../../../${lib.getLib libclang}"
   ] ++ lib.optionals enableManpages ([
     "-DLLVM_ENABLE_SPHINX=ON"
     "-DSPHINX_OUTPUT_MAN=ON"
@@ -152,20 +128,20 @@ stdenv.mkDerivation (rec {
 
   # TODO: cleanup with mass-rebuild
   installCheckPhase = ''
-    if [ ! -e $lib/${python3.sitePackages}/lldb/_lldb*.so ] ; then
+    if [ ! -e ''${!outputLib}/${python3.sitePackages}/lldb/_lldb*.so ] ; then
         echo "ERROR: python files not installed where expected!";
         return 1;
     fi
   '' # Something lua is built on older versions but this file doesn't exist.
   + lib.optionalString (lib.versionAtLeast release_version "14") ''
-    if [ ! -e "$lib/lib/lua/${lua5_3.luaversion}/lldb.so" ] ; then
+    if [ ! -e "''${!outputLib}/lib/lua/${lua5_3.luaversion}/lldb.so" ] ; then
         echo "ERROR: lua files not installed where expected!";
         return 1;
     fi
   '';
 
   postInstall = ''
-    wrapProgram $out/bin/lldb --prefix PYTHONPATH : $lib/${python3.sitePackages}/
+    wrapProgram $out/bin/lldb --prefix PYTHONPATH : ''${!outputLib}/${python3.sitePackages}/
 
     # Editor support
     # vscode:

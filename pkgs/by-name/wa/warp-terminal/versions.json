@@ -1,14 +1,14 @@
 {
   "darwin": {
-    "hash": "sha256-5SAOjGlMD9Lt+z6NjtIbZM7ES2xw8PBudG10lD4DnVk=",
-    "version": "0.2024.10.15.08.02.stable_02"
+    "hash": "sha256-XEnwEb7z0NwXpD1OULegdkj9oHP1rPfUw+bxE/DqUSs=",
+    "version": "0.2025.02.12.16.51.stable_03"
   },
   "linux_x86_64": {
-    "hash": "sha256-i5YWruFxbKNC0PxeUCb3uhWpcr0ukiQFdPuJBzwLwR0=",
-    "version": "0.2024.10.15.08.02.stable_02"
+    "hash": "sha256-teHHwoijqNi17U1XbZLBKwgn1CDVnOoPk+c+5qfaSEM=",
+    "version": "0.2025.02.12.16.51.stable_03"
   },
   "linux_aarch64": {
-    "hash": "sha256-hnn7DGPKi0wDtpY4HYJxgO5TbkSAZVmaPfB0S2oTJ2E=",
-    "version": "0.2024.10.15.08.02.stable_02"
+    "hash": "sha256-lsKkk7XU1uQ1lsbBtENe4vpfbGSozHV3TzClVHP3NxE=",
+    "version": "0.2025.02.12.16.51.stable_03"
   }
 }

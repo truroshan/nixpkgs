@@ -2,6 +2,7 @@
   lib,
   python3,
   fetchFromGitHub,
+  gettext,
   pango,
   harfbuzz,
   librsvg,
@@ -15,9 +16,7 @@
 let
   python = python3.override {
     packageOverrides = final: prev: {
-      django = prev.django_5.overridePythonAttrs (old: {
-        dependencies = old.dependencies ++ prev.django_5.optional-dependencies.argon2;
-      });
+      django = prev.django_5;
       sentry-sdk = prev.sentry-sdk_2;
       djangorestframework = prev.djangorestframework.overridePythonAttrs (old: {
         # https://github.com/encode/django-rest-framework/discussions/9342
@@ -28,7 +27,7 @@ let
 in
 python.pkgs.buildPythonApplication rec {
   pname = "weblate";
-  version = "5.7.2";
+  version = "5.10";
 
   pyproject = true;
 
@@ -40,12 +39,9 @@ python.pkgs.buildPythonApplication rec {
   src = fetchFromGitHub {
     owner = "WeblateOrg";
     repo = "weblate";
-    rev = "refs/tags/weblate-${version}";
-    hash = "sha256-cIwCNYXbg7l6z9OAkMAGJ783QI/nCOyrhLPURDcDv+Y=";
+    tag = "weblate-${version}";
+    hash = "sha256-DRodQb4IvLfpL+TzLigtiKTvXvGYbpa9Ej4+fCHSGmo=";
   };
-
-  # https://github.com/WeblateOrg/weblate/commit/1cf2a423b20fcd2dde18a43277311334e38208e7
-  pythonRelaxDeps = [ "rapidfuzz" ];
 
   patches = [
     # FIXME This shouldn't be necessary and probably has to do with some dependency mismatch.
@@ -53,6 +49,8 @@ python.pkgs.buildPythonApplication rec {
   ];
 
   build-system = with python.pkgs; [ setuptools ];
+
+  nativeBuildInputs = [ gettext ];
 
   # Build static files into a separate output
   postBuild =
@@ -69,6 +67,7 @@ python.pkgs.buildPythonApplication rec {
       mkdir $static
       cat weblate/settings_example.py ${staticSettings} > weblate/settings_static.py
       export DJANGO_SETTINGS_MODULE="weblate.settings_static"
+      ${python.pythonOnBuildForHost.interpreter} manage.py compilemessages
       ${python.pythonOnBuildForHost.interpreter} manage.py collectstatic --no-input
       ${python.pythonOnBuildForHost.interpreter} manage.py compress
     '';
@@ -78,6 +77,7 @@ python.pkgs.buildPythonApplication rec {
     [
       aeidon
       ahocorasick-rs
+      altcha
       (toPythonModule (borgbackup.override { python3 = python; }))
       celery
       certifi
@@ -87,6 +87,7 @@ python.pkgs.buildPythonApplication rec {
       cssselect
       cython
       cyrtranslit
+      dateparser
       diff-match-patch
       django-appconf
       django-celery-beat
@@ -98,7 +99,11 @@ python.pkgs.buildPythonApplication rec {
       django-otp
       django-otp-webauthn
       django
+      djangorestframework-csv
       djangorestframework
+      docutils
+      drf-spectacular
+      drf-standardized-errors
       filelock
       fluent-syntax
       gitpython
@@ -132,12 +137,16 @@ python.pkgs.buildPythonApplication rec {
       tesserocr
       translate-toolkit
       translation-finder
+      unidecode
       user-agents
       weblate-language-data
       weblate-schemas
     ]
+    ++ django.optional-dependencies.argon2
     ++ python-redis-lock.optional-dependencies.django
-    ++ celery.optional-dependencies.redis;
+    ++ celery.optional-dependencies.redis
+    ++ drf-spectacular.optional-dependencies.sidecar
+    ++ drf-standardized-errors.optional-dependencies.openapi;
 
   optional-dependencies = {
     postgres = with python.pkgs; [ psycopg ];

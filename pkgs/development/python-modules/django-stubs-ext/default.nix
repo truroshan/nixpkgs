@@ -13,7 +13,7 @@
 
 buildPythonPackage rec {
   pname = "django-stubs-ext";
-  version = "5.1.0";
+  version = "5.1.2";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -21,7 +21,7 @@ buildPythonPackage rec {
   src = fetchPypi {
     pname = "django_stubs_ext";
     inherit version;
-    hash = "sha256-7X1RwLcxZRh5/HXzMfsIBtmLZ7+rRk6W4nJNtrRu+SY=";
+    hash = "sha256-QhwMMCWmjjq44W8GX62bqTM17O/i3ZKgz/l6ZlaAJmw=";
   };
 
   build-system = [ setuptools ];

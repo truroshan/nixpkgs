@@ -49,6 +49,10 @@ buildPythonPackage rec {
     pytest
   ];
 
+  # beancount cannot be directly bumped to 3.x
+  # e.g. https://github.com/NixOS/nixpkgs/issues/380197
+  passthru.skipBulkUpdate = true;
+
   meta = with lib; {
     homepage = "https://github.com/beancount/beancount";
     description = "Double-entry bookkeeping computer language";
@@ -58,6 +62,9 @@ buildPythonPackage rec {
       generate a variety of reports from them, and provides a web interface.
     '';
     license = licenses.gpl2Only;
-    maintainers = with maintainers; [ sharzy polarmutex ];
+    maintainers = with maintainers; [
+      sharzy
+      polarmutex
+    ];
   };
 }

@@ -28,15 +28,10 @@
   fauna-shell = "fauna";
   fkill-cli = "fkill";
   fleek-cli = "fleek";
-  graphql-cli = "graphql";
-  graphql-language-service-cli = "graphql-lsp";
   grunt-cli = "grunt";
   gulp-cli = "gulp";
-  kaput-cli = "kaput";
-  less = "lessc";
   localtunnel = "lt";
   lua-fmt = "luafmt";
-  neovim = "neovim-node-host";
   parsoid = "parse.js";
   poor-mans-t-sql-formatter-cli = "sqlformat";
   postcss-cli = "postcss";
@@ -47,7 +42,6 @@
   purs-tidy = "purs-tidy";
   purty = "purty";
   pscid = "pscid";
-  remod-cli = "remod";
   vscode-json-languageserver = "vscode-json-languageserver";
   webtorrent-cli = "webtorrent";
 }

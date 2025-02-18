@@ -5,22 +5,30 @@
   pkg-config,
   nix-update-script,
   fetchFromGitHub,
+  IOKit,
+  Foundation,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "nushell_plugin_highlight";
-  version = "1.3.1+0.98.0";
+  version = "1.4.3+0.102.0";
 
   src = fetchFromGitHub {
     repo = "nu-plugin-highlight";
     owner = "cptpiepmatz";
-    rev = "v${version}";
-    hash = "sha256-G669d13JBLdy/1RUXtgZkiQhjgn3SqV34VlLbQoVOzc=";
+    rev = "refs/tags/v${version}";
+    hash = "sha256-0gKwk5YGysKWAFZdUAWzw3wiCvzF43N9f5Bj5NnDTJ4=";
+    fetchSubmodules = true;
   };
-  cargoHash = "sha256-ZZyxRiAaazLIwWtl9f30yp94HiKao3ZlYJ6B/vK14jc=";
+
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-Z7fTKMZacNTRrcwJNb8kiH5G8irITQMNpt+pcskDbKQ=";
 
   nativeBuildInputs = [ pkg-config ] ++ lib.optionals stdenv.cc.isClang [ rustPlatform.bindgenHook ];
-  buildInputs = [ ];
+  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
+    IOKit
+    Foundation
+  ];
   cargoBuildFlags = [ "--package nu_plugin_highlight" ];
 
   checkPhase = ''
@@ -30,7 +38,7 @@ rustPlatform.buildRustPackage rec {
   passthru.updateScript = nix-update-script { };
 
   meta = with lib; {
-    description = "A nushell plugin that will inspect a file and return information based on it's magic number.";
+    description = "A nushell plugin for syntax highlighting.";
     mainProgram = "nu_plugin_highlight";
     homepage = "https://github.com/cptpiepmatz/nu-plugin-highlight";
     license = licenses.mit;

@@ -153,8 +153,8 @@ let
         # https://github.com/Golevka/emacs-clang-complete-async/issues/90
         auto-complete-clang-async = (addPackageRequires super.auto-complete-clang-async [ self.auto-complete ]).overrideAttrs (old: {
           buildInputs = old.buildInputs ++ [ pkgs.llvmPackages.llvm ];
-          CFLAGS = "-I${pkgs.llvmPackages.libclang.lib}/include";
-          LDFLAGS = "-L${pkgs.llvmPackages.libclang.lib}/lib";
+          CFLAGS = "-I${lib.getLib pkgs.llvmPackages.libclang}/include";
+          LDFLAGS = "-L${lib.getLib pkgs.llvmPackages.libclang}/lib";
         });
 
         # part of a larger package
@@ -172,7 +172,7 @@ let
 
         dune = dontConfigure super.dune;
 
-        emacsql = super.emacsql.overrideAttrs (old: {
+        emacsql = super.emacsql.overrideAttrs (old: lib.optionalAttrs (lib.versionOlder old.version "20241115.1939") {
           buildInputs = old.buildInputs ++ [ pkgs.sqlite ];
 
           postBuild = ''
@@ -316,9 +316,7 @@ let
         });
 
         # tries to write a log file to $HOME
-        insert-shebang = super.insert-shebang.overrideAttrs (attrs: {
-          HOME = "/tmp";
-        });
+        insert-shebang = mkHome super.insert-shebang;
 
         ivy-rtags = ignoreCompilationError (fix-rtags super.ivy-rtags); # elisp error
 
@@ -550,6 +548,13 @@ let
           '';
         });
 
+        treemacs = super.treemacs.overrideAttrs (attrs: {
+          postPatch = (attrs.postPatch or "") + ''
+            substituteInPlace src/elisp/treemacs-customization.el \
+              --replace 'treemacs-python-executable (treemacs--find-python3)' 'treemacs-python-executable "${lib.getExe pkgs.python3}"'
+          '';
+        });
+
         treemacs-magit = super.treemacs-magit.overrideAttrs (attrs: {
           # searches for Git at build time
           nativeBuildInputs =
@@ -658,9 +663,7 @@ let
         helm-rtags = ignoreCompilationError (fix-rtags super.helm-rtags); # elisp error
 
         # tries to write to $HOME
-        php-auto-yasnippets = super.php-auto-yasnippets.overrideAttrs (attrs: {
-          HOME = "/tmp";
-        });
+        php-auto-yasnippets = mkHome super.php-auto-yasnippets;
 
         racer = super.racer.overrideAttrs (attrs: {
           postPatch = attrs.postPatch or "" + ''
@@ -754,6 +757,9 @@ let
         # Optimizer error: too much on the stack
         ack-menu = ignoreCompilationError super.ack-menu;
 
+        # https://github.com/skeeto/emacs-aio/issues/31
+        aio = ignoreCompilationError super.aio;
+
         # https://github.com/gongo/airplay-el/issues/2
         airplay = addPackageRequires super.airplay [ self.request-deferred ];
 
@@ -793,6 +799,18 @@ let
         # depends on distel which is not on any ELPA https://github.com/massemanet/distel/issues/21
         auto-complete-distel = ignoreCompilationError super.auto-complete-distel;
 
+        auto-virtualenv = super.auto-virtualenv.overrideAttrs (
+          finalAttrs: previousAttrs: {
+            patches = previousAttrs.patches or [ ] ++ [
+              (pkgs.fetchpatch {
+                name = "do-not-error-if-the-optional-projectile-is-not-available.patch";
+                url = "https://github.com/marcwebbie/auto-virtualenv/pull/14/commits/9a068974a4e12958200c12c6a23372fa736523c1.patch";
+                hash = "sha256-bqrroFf5AD5SHx6uzBFdVwTv3SbFiO39T+0x03Ves/k=";
+              })
+            ];
+          }
+        );
+
         aws-ec2 = ignoreCompilationError super.aws-ec2; # elisp error
 
         badger-theme = ignoreCompilationError super.badger-theme; # elisp error
@@ -806,7 +824,11 @@ let
         boa-mode = ignoreCompilationError super.boa-mode; # elisp error
 
         # missing optional dependencies
-        boogie-friends = addPackageRequires super.boogie-friends [ self.lsp-mode ];
+        # https://github.com/boogie-org/boogie-friends/issues/42
+        boogie-friends = ignoreCompilationError (addPackageRequires super.boogie-friends [ self.lsp-mode ]);
+
+        # this package probably should not be compiled in nix build sandbox
+        borg = ignoreCompilationError super.borg;
 
         bpr = super.bpr.overrideAttrs (
           finalAttrs: previousAttrs: {
@@ -930,6 +952,19 @@ let
         # missing optional dependencies
         conda = addPackageRequires super.conda [ self.projectile ];
 
+        # needs network during compilation, also native-ice
+        consult-gh = ignoreCompilationError (
+          super.consult-gh.overrideAttrs (old: {
+            propagatedUserEnvPkgs = old.propagatedUserEnvPkgs or [ ] ++ [ pkgs.gh ];
+          })
+        );
+
+        # needs network during compilation
+        consult-gh-embark = ignoreCompilationError super.consult-gh-embark;
+
+        # needs network during compilation
+        consult-gh-forge = ignoreCompilationError (buildWithGit super.consult-gh-forge);
+
         counsel-gtags = ignoreCompilationError super.counsel-gtags; # elisp error
 
         # https://github.com/fuxialexander/counsel-notmuch/issues/3
@@ -942,14 +977,19 @@ let
 
         cssh = ignoreCompilationError super.cssh; # elisp error
 
-        dap-mode = super.dap-mode.overrideAttrs (old: {
-          # empty file causing native-compiler-error-empty-byte
-          preBuild =
-            ''
-              rm --verbose dapui.el
-            ''
-            + old.preBuild or "";
-        });
+        dap-mode = super.dap-mode.overrideAttrs (
+          finalAttrs: previousAttrs: {
+            # empty file causing native-compiler-error-empty-byte
+            preBuild =
+              if lib.versionOlder finalAttrs.version "20250131.1624" then
+                ''
+                  rm --verbose dapui.el
+                ''
+                + previousAttrs.preBuild or ""
+              else
+                previousAttrs.preBuild or null;
+          }
+        );
 
         db-pg = ignoreCompilationError super.db-pg; # elisp error
 
@@ -1113,6 +1153,8 @@ let
 
         gh-notify = buildWithGit super.gh-notify;
 
+        "git-gutter-fringe+" = ignoreCompilationError super."git-gutter-fringe+"; # elisp error
+
         # https://github.com/nlamirault/emacs-gitlab/issues/68
         gitlab = addPackageRequires super.gitlab [ self.f ];
 
@@ -1228,6 +1270,23 @@ let
         # missing optional dependencies: vterm or eat
         julia-snail = addPackageRequires super.julia-snail [ self.eat ];
 
+        kanagawa-themes = super.kanagawa-themes.overrideAttrs (
+          finalAttrs: previousAttrs: {
+            patches =
+              if lib.versionOlder finalAttrs.version "20241015.2237" then
+                previousAttrs.patches or [ ]
+                ++ [
+                  (pkgs.fetchpatch {
+                    name = "fix-compilation-error.patch";
+                    url = "https://github.com/Fabiokleis/kanagawa-emacs/commit/83c2b5c292198b46a06ec0ad62619d83fd965433.patch";
+                    hash = "sha256-pB1ht03XCh+BWKHhxBAp701qt/KWAMJ2SQQaN3FgMjU=";
+                  })
+                ]
+              else
+                previousAttrs.patches or null;
+          }
+        );
+
         kite = ignoreCompilationError super.kite; # elisp error
 
         # missing optional dependencies
@@ -1261,7 +1320,7 @@ let
         mastodon = ignoreCompilationError super.mastodon; # elisp error
 
         # https://github.com/org2blog/org2blog/issues/339
-        metaweblog = addPackageRequires super.metaweblog [ self.xml-rpc ];
+        metaweblog = addPackageRequiresIfOlder super.metaweblog [ self.xml-rpc ] "20250204.1820";
 
         mu-cite = ignoreCompilationError super.mu-cite; # elisp error
 
@@ -1347,7 +1406,7 @@ let
         org-gtd = ignoreCompilationError super.org-gtd; # elisp error
 
         # needs newer org than the Eamcs 29.4 builtin one
-        org-link-beautify = addPackageRequires super.org-link-beautify [ self.org ];
+        org-link-beautify = addPackageRequires super.org-link-beautify [ self.org self.qrencode ];
 
         # TODO report to upstream
         org-kindle = addPackageRequires super.org-kindle [ self.dash ];
@@ -1355,6 +1414,13 @@ let
         org-special-block-extras = ignoreCompilationError super.org-special-block-extras; # elisp error
 
         org-trello = ignoreCompilationError super.org-trello; # elisp error
+
+        # Requires xwidgets compiled into emacs, so mark this package
+        # as broken if emacs hasn't been compiled with the flag.
+        org-xlatex =
+          if self.emacs.withXwidgets
+          then super.org-xlatex
+          else markBroken super.org-xlatex;
 
         # Optimizer error: too much on the stack
         orgnav = ignoreCompilationError super.orgnav;
@@ -1460,6 +1526,18 @@ let
 
         scad-preview = ignoreCompilationError super.scad-preview; # elisp error
 
+        sdml-mode = super.sdml-mode.overrideAttrs (
+          finalAttrs: previousAttrs: {
+            patches = previousAttrs.patches or [ ] ++ [
+              (pkgs.fetchpatch {
+                name = "make-pretty-hydra-optional.patch";
+                url = "https://github.com/sdm-lang/emacs-sdml-mode/pull/3/commits/2368afe31c72073488411540e212c70aae3dd468.patch";
+                hash = "sha256-Wc4pquKV9cTRey9SdjY++UgcP+pGI0hVOOn1Cci8dpk=";
+              })
+            ];
+          }
+        );
+
         # https://github.com/wanderlust/semi/pull/29
         # missing optional dependencies
         semi = addPackageRequires super.semi [ self.bbdb-vcard ];
@@ -1525,6 +1603,8 @@ let
         tommyh-theme = ignoreCompilationError super.tommyh-theme; # elisp error
 
         tramp-hdfs = ignoreCompilationError super.tramp-hdfs; # elisp error
+
+        twtxt = ignoreCompilationError super.twtxt; # needs to read ~/twtxt.txt
 
         universal-emotions-emoticons = ignoreCompilationError super.universal-emotions-emoticons; # elisp error
 

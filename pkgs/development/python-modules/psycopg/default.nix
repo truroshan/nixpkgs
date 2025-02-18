@@ -8,11 +8,10 @@
   substituteAll,
 
   # build
-  postgresql,
+  libpq,
   setuptools,
 
   # propagates
-  backports-zoneinfo,
   typing-extensions,
 
   # psycopg-c
@@ -30,24 +29,25 @@
   pproxy,
   pytest-randomly,
   pytestCheckHook,
+  postgresql,
   postgresqlTestHook,
 }:
 
 let
   pname = "psycopg";
-  version = "3.2.2";
+  version = "3.2.4";
 
   src = fetchFromGitHub {
     owner = "psycopg";
-    repo = pname;
-    rev = "refs/tags/${version}";
-    hash = "sha256-Udysl00lB6rxmQByME6PI3KL4tlzIZ0/CZNWLVKssS8=";
+    repo = "psycopg";
+    tag = version;
+    hash = "sha256-gicntSAEK5VO67M2gAGR6wSwKQwgnbHxVUoPpaAbaDk=";
   };
 
   patches = [
     (substituteAll {
       src = ./ctypes.patch;
-      libpq = "${postgresql.lib}/lib/libpq${stdenv.hostPlatform.extensions.sharedLibrary}";
+      libpq = "${libpq}/lib/libpq${stdenv.hostPlatform.extensions.sharedLibrary}";
       libc = "${stdenv.cc.libc}/lib/libc.so.6";
     })
   ];
@@ -75,13 +75,13 @@ let
     nativeBuildInputs = [
       cython
       # needed to find pg_config with strictDeps
-      postgresql
+      libpq
       setuptools
       tomli
     ];
 
     buildInputs = [
-      postgresql
+      libpq
     ];
 
     # tested in psycopg
@@ -153,7 +153,7 @@ buildPythonPackage rec {
   propagatedBuildInputs = [
     psycopg-c
     typing-extensions
-  ] ++ lib.optionals (pythonOlder "3.9") [ backports-zoneinfo ];
+  ];
 
   pythonImportsCheck = [
     "psycopg"
@@ -211,8 +211,7 @@ buildPythonPackage rec {
   ];
 
   pytestFlagsArray = [
-    "-o"
-    "cache_dir=$TMPDIR"
+    "-o cache_dir=.cache"
     "-m"
     "'not refcount and not timing and not flakey'"
     # pytest.PytestRemovedIn9Warning: Marks applied to fixtures have no effect

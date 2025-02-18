@@ -160,6 +160,7 @@ let
 
       # Misc.
       "systemd-sysctl.service"
+      "systemd-machine-id-commit.service"
     ] ++ optionals cfg.package.withTimedated [
       "dbus-org.freedesktop.timedate1.service"
       "systemd-timedated.service"
@@ -197,7 +198,7 @@ in
 
     package = mkPackageOption pkgs "systemd" {};
 
-    enableStrictShellChecks = mkEnableOption "running shellcheck on the generated scripts for systemd units.";
+    enableStrictShellChecks = mkEnableOption "" // { description = "Whether to run shellcheck on the generated scripts for systemd units."; };
 
     units = mkOption {
       description = "Definition of systemd units; see {manpage}`systemd.unit(5)`.";
@@ -674,7 +675,6 @@ in
     systemd.services.systemd-udev-settle.restartIfChanged = false; # Causes long delays in nixos-rebuild
     systemd.targets.local-fs.unitConfig.X-StopOnReconfiguration = true;
     systemd.targets.remote-fs.unitConfig.X-StopOnReconfiguration = true;
-    systemd.targets.network-online.wantedBy = [ "multi-user.target" ];
     systemd.services.systemd-importd.environment = proxy_env;
     systemd.services.systemd-pstore.wantedBy = [ "sysinit.target" ]; # see #81138
 
@@ -716,7 +716,7 @@ in
       (mkRemovedOptionModule [ "systemd" "generator-packages" ] "Use systemd.packages instead.")
       (mkRemovedOptionModule ["systemd" "enableUnifiedCgroupHierarchy"] ''
           In 256 support for cgroup v1 ('legacy' and 'hybrid' hierarchies) is now considered obsolete and systemd by default will refuse to boot under it.
-          To forcibly reenable cgroup v1 support, you can set boot.kernelParams = [ "systemd.unified_cgroup_hierachy=0" "SYSTEMD_CGROUP_ENABLE_LEGACY_FORCE=1" ].
+          To forcibly reenable cgroup v1 support, you can set boot.kernelParams = [ "systemd.unified_cgroup_hierarchy=0" "SYSTEMD_CGROUP_ENABLE_LEGACY_FORCE=1" ].
           NixOS does not officially support this configuration and might cause your system to be unbootable in future versions. You are on your own.
       '')
     ];

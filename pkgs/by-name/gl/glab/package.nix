@@ -1,17 +1,24 @@
-{ lib, buildGo123Module, fetchFromGitLab, installShellFiles, stdenv }:
+{
+  lib,
+  buildGo123Module,
+  fetchFromGitLab,
+  installShellFiles,
+  stdenv,
+  nix-update-script,
+}:
 
 buildGo123Module rec {
   pname = "glab";
-  version = "1.47.0";
+  version = "1.53.0";
 
   src = fetchFromGitLab {
     owner = "gitlab-org";
     repo = "cli";
     rev = "v${version}";
-    hash = "sha256-mAM11nQ6YJJWNFOR9xQbgma7Plvo4MdcW2Syniw7o60=";
+    hash = "sha256-QbXc249DKRrLdDwH3R7ZWXh2izLe97jc/WcjC8z1mv8=";
   };
 
-  vendorHash = "sha256-uwSVdebZtIpSol553gJC0ItkEqa6qXXOAVFvzjsHSSI=";
+  vendorHash = "sha256-wwWKxdAIlZw5s/kp08mZf8x10ujht9xbSoYWlGT4sPk=";
 
   ldflags = [
     "-s"
@@ -28,7 +35,7 @@ buildGo123Module rec {
 
   nativeBuildInputs = [ installShellFiles ];
 
-  postInstall = lib.optionalString (stdenv.hostPlatform == stdenv.buildPlatform) ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     make manpage
     installManPage share/man/man1/*
     installShellCompletion --cmd glab \
@@ -37,12 +44,17 @@ buildGo123Module rec {
       --zsh <($out/bin/glab completion -s zsh)
   '';
 
-  meta = with lib; {
+  passthru.updateScript = nix-update-script { };
+
+  meta = {
     description = "GitLab CLI tool bringing GitLab to your command line";
-    license = licenses.mit;
+    license = lib.licenses.mit;
     homepage = "https://gitlab.com/gitlab-org/cli";
     changelog = "https://gitlab.com/gitlab-org/cli/-/releases/v${version}";
-    maintainers = with maintainers; [ freezeboy ];
+    maintainers = with lib.maintainers; [
+      freezeboy
+      luftmensch-luftmensch
+    ];
     mainProgram = "glab";
   };
 }

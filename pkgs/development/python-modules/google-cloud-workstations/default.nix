@@ -16,7 +16,7 @@
 
 buildPythonPackage rec {
   pname = "google-cloud-workstations";
-  version = "0.5.8";
+  version = "0.5.12";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -24,7 +24,7 @@ buildPythonPackage rec {
   src = fetchPypi {
     pname = "google_cloud_workstations";
     inherit version;
-    hash = "sha256-Xu7oL5R/K3oHMea1xCwRLPoxgPNMFRSMYCQ73K9sMgQ=";
+    hash = "sha256-WSfi5W4QovtgOT9fJA8UKIrUepGHGkwz5BIgy/Miiw0=";
   };
 
   build-system = [ setuptools ];
